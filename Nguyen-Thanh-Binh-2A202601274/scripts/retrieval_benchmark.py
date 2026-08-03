@@ -62,10 +62,10 @@ BENCHMARK = [
     },
     {
         "id": 3,
-        "query": "Gian hàng cần đáp ứng điều kiện gì để được tham gia chương trình ưu đãi phí vận chuyển của Shopee?",
-        "gold": "Chỉ áp dụng cho người bán thuộc Shopee Mall đáp ứng đủ yêu cầu của sàn; phí dịch vụ 6%, tối đa 50.000 VNĐ mỗi sản phẩm.",
+        "query": "Phí vận chuyển được tính và xử lý như thế nào?",
+        "gold": "Với người bán: phí dịch vụ của chương trình là 6%, tối đa 50.000 VNĐ trên giá bán mỗi sản phẩm.",
         "gold_doc": "shipping-fee-discount-program",
-        "gold_snippet": "chỉ áp dụng cho người bán thuộc Shopee Mall",
+        "gold_snippet": "6%, tối đa 50.000 VNĐ trên giá bán của mỗi sản phẩm",
         "filter": {"customer_role": "seller"},
     },
     {
