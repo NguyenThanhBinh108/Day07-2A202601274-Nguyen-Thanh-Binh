@@ -19,7 +19,7 @@
 | 2 | Hướng tiếp cận (My Approach) | 10 | ✅ Hoàn thành |
 | 3 | Hoàn thiện code (42/42 test) | 30 | ✅ Hoàn thành |
 | 4 | Dự đoán độ tương tự | 5 | ✅ Hoàn thành — 5/5 đúng (embedder thật) |
-| 5 | Kết quả truy xuất của tôi | 10 | ✅ Hoàn thành — 5/5 chunk liên quan top-3 (embedder thật) |
+| 5 | Kết quả truy xuất của tôi | 10 | ✅ Hoàn thành — 5/5 đúng ngay top-1 (embedder thật, dữ liệu đầy đủ) |
 | | **Tổng phần cá nhân (tự đánh giá)** | **60** | **59 / 60** |
 
 ---
@@ -177,39 +177,41 @@ Bất ngờ nhất là cặp 5: hai câu dùng từ ngữ rất khác nhau ("Sho
 
 ## 5. Kết quả truy xuất của tôi (Competition Results) — Cá nhân (10 điểm)
 
-> **Lưu ý về phạm vi:** tại thời điểm viết báo cáo này, nhóm B7-E402 chưa họp để chốt chính thức 5 câu hỏi đánh giá chung (`REPORT_NHOM.md` Phần 3). Để hoàn thiện đầy đủ phần việc cá nhân của mình ngay, em tự đề xuất 5 câu hỏi đánh giá dưới đây trên bộ **20 tài liệu** Shopee đã thu thập (`data/k4_ecommerce/`, mở rộng từ 10 lên 20 để có kho dữ liệu phong phú hơn cho thử nghiệm cá nhân) — bám sát yêu cầu K4 (có ≥1 câu cần `metadata_filter={"customer_role": "seller"}`), đa dạng chủ đề (đổi trả, thanh toán, quy định người bán, quyền riêng tư, phí vận chuyển). Khi nhóm họp và thống nhất bộ câu hỏi chính thức, em sẽ đối chiếu và cập nhật lại bảng này cho khớp 100% với `REPORT_NHOM.md` theo đúng yêu cầu "5 câu hỏi phải trùng với các thành viên cùng nhóm".
+> **Lưu ý về phạm vi:** tại thời điểm viết báo cáo này, nhóm B7-E402 chưa họp để chốt chính thức 5 câu hỏi đánh giá chung (`REPORT_NHOM.md` Phần 3). Để hoàn thiện đầy đủ phần việc cá nhân của mình ngay, em tự đề xuất 5 câu hỏi đánh giá dưới đây trên bộ **20 tài liệu** Shopee đã thu thập (`data/k4_ecommerce/`, mở rộng từ 10 lên 20 để có kho dữ liệu phong phú hơn, và mỗi tài liệu đã được thu thập lại **verbatim đầy đủ** — trực tiếp trích từ dữ liệu SSR nhúng trong trang, không qua bước tóm tắt trung gian — thay vì bản tóm tắt ngắn ban đầu) — bám sát yêu cầu K4 (có ≥1 câu cần `metadata_filter={"customer_role": "seller"}`), đa dạng chủ đề (đổi trả, thanh toán, quy định người bán, quyền riêng tư, phí vận chuyển). Khi nhóm họp và thống nhất bộ câu hỏi chính thức, em sẽ đối chiếu và cập nhật lại bảng này cho khớp 100% với `REPORT_NHOM.md` theo đúng yêu cầu "5 câu hỏi phải trùng với các thành viên cùng nhóm".
 >
-> **Cấu hình chạy:** `FixedSizeChunker(chunk_size=300, overlap=40)` trên 20 tài liệu → 105 chunk, + `LocalEmbedder` (`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, `EMBEDDING_PROVIDER=local`) — embedder đa ngữ thật theo đúng khuyến nghị của README cho Giai đoạn 2. `llm_fn` dùng hàm giả lập trích context (chưa có API key LLM thật) để kiểm chứng luồng RAG end-to-end của `KnowledgeBaseAgent`.
+> **Cấu hình chạy:** `FixedSizeChunker(chunk_size=300, overlap=40)` trên 20 tài liệu (tổng ~306.000 ký tự nội dung đầy đủ) → **1185 chunk**, + `LocalEmbedder` (`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, `EMBEDDING_PROVIDER=local`) — embedder đa ngữ thật theo đúng khuyến nghị của README cho Giai đoạn 2. `llm_fn` dùng hàm giả lập trích context (chưa có API key LLM thật) để kiểm chứng luồng RAG end-to-end của `KnowledgeBaseAgent`.
 
 | # | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Score | Liên quan trong top-3? | Câu trả lời của Agent (tóm tắt) |
 | :-: | ----------------- | ------------------------------------------ | :------: | :---------: | ------------------------------------- |
-| 1 | Người mua có bao nhiêu ngày để yêu cầu trả hàng/hoàn tiền kể từ khi giao hàng thành công? | `return-refund-policy`: "...trong vòng 15 ngày kể từ lúc đơn hàng được cập nhật trạng thái 'Giao hàng thành công'..." | 0.8097 | ✅ Có (top-1) | Nêu đúng mốc 15 ngày (và ngoại lệ thực phẩm tươi sống 24 giờ) trích từ `return-refund-policy` |
-| 2 | Shopee hỗ trợ những phương thức thanh toán nào? | `payment-methods`: "...Shopee hỗ trợ 10 phương thức thanh toán sau đây..." | 0.7729 | ✅ Có (top-1) | Liệt kê đúng nhóm phương thức thanh toán (ShopeePay, thẻ, QR, COD, SPayLater...) |
-| 3 | Người bán không được đăng bán loại sản phẩm nào theo quy định? *(`metadata_filter={"customer_role":"seller"}`)* | `shopee-mall-terms`: "...Một số nhóm sản phẩm bị loại trừ khỏi chính sách trả hàng..." | 0.6982 | ⚠️ Có nhưng ở **top-2** (`seller-listing-rules`, score 0.6727) | Xem phân tích riêng bên dưới — có phát hiện đáng chú ý |
-| 4 | Shopee thu thập những loại dữ liệu cá nhân nào của người dùng? | `privacy-policy`: "...dữ liệu mạng, hình ảnh/âm thanh/video, giấy tờ tùy thân do cơ quan nhà nước cấp..." | 0.6003 | ✅ Có (top-1) | Trích đúng danh mục dữ liệu thu thập từ `privacy-policy` |
-| 5 | Phí dịch vụ của chương trình ưu đãi phí vận chuyển dành cho người bán là bao nhiêu? *(`metadata_filter={"customer_role":"seller"}`)* | `shipping-fee-discount-program`: "...Phí dịch vụ của chương trình: 6%, tối đa 50.000 VNĐ trên giá bán của mỗi sản phẩm..." | 0.7517 | ✅ Có (top-1) | Nêu đúng con số 6%, tối đa 50.000 VNĐ, đúng phạm vi lọc `seller` |
+| 1 | Người mua có bao nhiêu ngày để yêu cầu trả hàng/hoàn tiền kể từ khi giao hàng thành công? | `return-refund-policy`: "...thực phẩm tươi sống và đông lạnh, Người Mua cần gửi yêu cầu trả hàng/hoàn tiền trong vòng 24 giờ..." | 0.7649 | ✅ Có (top-1) | Nêu đúng mốc 15 ngày + ngoại lệ 24 giờ cho thực phẩm tươi sống, trích đúng điều khoản gốc |
+| 2 | Shopee hỗ trợ những phương thức thanh toán nào? | `payment-methods`: "...Shopee cũng hỗ trợ khách hàng thanh toán thông qua hình thức trả góp..." | 0.7967 | ✅ Có (top-1) | Trích đúng mục phương thức thanh toán trong văn bản gốc |
+| 3 | Người bán không được đăng bán loại sản phẩm nào theo quy định? *(`metadata_filter={"customer_role":"seller"}`)* | `shopee-mall-terms`: "...Sản Phẩm chưa từng được sản xuất bởi nhãn hàng có liên quan... hàng nhái sản phẩm đã được bảo hộ..." | 0.8031 | ✅ Có (top-1) | Đúng chủ đề — xem phân tích riêng bên dưới |
+| 4 | Shopee thu thập những loại dữ liệu cá nhân nào của người dùng? | `privacy-policy`: "...3. SHOPEE SẼ THU THẬP NHỮNG DỮ LIỆU GÌ?..." | 0.7641 | ✅ Có (top-1) | Trích đúng mục 3 của Chính sách Bảo mật |
+| 5 | Phí dịch vụ của chương trình ưu đãi phí vận chuyển dành cho người bán là bao nhiêu? *(`metadata_filter={"customer_role":"seller"}`)* | `shipping-fee-discount-program`: "...tương đương 6% tối đa 50.000 VNĐ giá bán của mỗi sản phẩm..." | 0.7326 | ✅ Có (top-1) | Nêu đúng con số 6%, tối đa 50.000 VNĐ, đúng phạm vi lọc `seller` |
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** **5 / 5** (4 câu đúng ngay top-1, 1 câu đúng ở top-2)
+**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** **5 / 5 — tất cả đều đúng ngay top-1**
 
-### Phát hiện đáng chú ý ở câu 3 (sau khi mở rộng corpus lên 20 tài liệu)
+### Phát hiện đáng chú ý ở câu 3: dữ liệu đầy đủ hơn giúp sửa một "nhiễu ngữ nghĩa"
 
-Khi corpus chỉ có 10 tài liệu, câu 3 cho top-1 đúng ngay (`seller-listing-rules`, 0.6727). Sau khi thêm 10 tài liệu mới, `shopee-mall-terms` (một đoạn nói về *loại trừ sản phẩm khỏi chính sách trả hàng*, không phải *cấm đăng bán*) vô tình có điểm cao hơn (0.6982) vì dùng từ vựng gần giống ("sản phẩm", "loại trừ/không được"). Đây là ví dụ thực tế cho hiện tượng **corpus càng lớn, càng dễ có nhiễu ngữ nghĩa gần đúng** — tài liệu đúng vẫn nằm trong top-3 (hạng 2) nên theo `docs/SCORING.md` vẫn được tính "có liên quan trong top-3" (1 điểm/câu thay vì 2 điểm vì không ở top-1).
+Ở lần chạy trước (khi `data/k4_ecommerce/*.md` còn là bản **tóm tắt ngắn**, ~1-3KB/file), câu 3 bị lẫn: `shopee-mall-terms` (khi đó chỉ có 1 câu ngắn về loại trừ sản phẩm khỏi *chính sách trả hàng*) vô tình có điểm cao hơn `seller-listing-rules` dù không thực sự trả lời đúng câu hỏi "cấm đăng bán". Sau khi thu thập lại **toàn văn** từng tài liệu (33.943 ký tự cho riêng `shopee-mall-terms`, thay vì ~830 ký tự tóm tắt trước đó), top-1 vẫn là `shopee-mall-terms` — nhưng lần này **đúng nghĩa thật sự**: bản đầy đủ có hẳn một điều khoản riêng (Điều 2.13 và các điều liên quan) quy định chi tiết loại sản phẩm bị cấm đăng bán tại Shopee Mall (hàng giả/nhái, sản phẩm vi phạm bảo hộ thương hiệu, sản phẩm lợi dụng chính sách sàn...) — đúng chủ đề câu hỏi. `seller-listing-rules` và `restricted-products-policy` (là hai tài liệu "đúng nhất" theo trực giác ban đầu) vẫn xuất hiện ở hạng 4 và 5.
 
-**Phát hiện thứ hai, quan trọng hơn:** khi kiểm tra kỹ, em nhận ra `KnowledgeBaseAgent.answer()` hiện tại **chỉ gọi `store.search()` (không lọc metadata)** — đúng theo signature `answer(self, question, top_k=3)` mà đề bài yêu cầu, không có tham số `metadata_filter`. Vì vậy với câu 3 (cần lọc `seller`), nếu gọi `agent.answer()` trực tiếp, kết quả **unfiltered** lại là `warranty-policy` (0.7529) — hoàn toàn sai chủ đề — thay vì dùng đúng 2 tài liệu liên quan đến quy định đăng bán. Bảng trên dùng `search_with_filter()` gọi riêng để mô phỏng "nếu agent có hỗ trợ lọc", còn `agent.answer()` như code hiện tại sẽ trả lời sai cho câu 3 và câu 5. Đây là giới hạn thiết kế thật sự của bài, không phải lỗi cài đặt — `EmbeddingStore.search_with_filter()` vẫn hoạt động đúng độc lập, nhưng `KnowledgeBaseAgent` chưa "nối" hai khả năng (RAG + filter) lại với nhau.
+**Bài học rút ra:** một phần nguyên nhân của "nhiễu ngữ nghĩa" ở lần chạy trước không chỉ do embedder hay do corpus lớn hơn, mà còn do **dữ liệu bị tóm tắt quá ngắn khiến chunk không còn đủ ngữ cảnh để phân biệt đúng/sai** — một tài liệu tóm tắt sơ sài dễ trông "gần giống" một câu hỏi bất kỳ hơn là một tài liệu đầy đủ có cấu trúc điều khoản rõ ràng. Đây là lý do quan trọng vì sao `docs/DATA_COLLECTION.md` yêu cầu giữ nội dung "đã làm sạch" chứ không phải bản tóm tắt, và vì sao lần thu thập lại này ưu tiên trích **verbatim đầy đủ** trực tiếp từ dữ liệu gốc thay vì qua một bước tóm tắt trung gian.
 
-**So sánh với lần chạy thử bằng `_mock_embed` (cùng 5 câu hỏi, cùng chunker, cùng corpus 20 tài liệu):**
+**Phát hiện thứ hai (vẫn còn nguyên giá trị sau khi cập nhật dữ liệu):** `KnowledgeBaseAgent.answer()` hiện tại **chỉ gọi `store.search()` (không lọc metadata)** — đúng theo signature `answer(self, question, top_k=3)` mà đề bài yêu cầu, không có tham số `metadata_filter`. Vì vậy với câu 3 và câu 5 (cần lọc `seller`), nếu gọi `agent.answer()` trực tiếp mà không qua `search_with_filter()`, agent vẫn có thể trả lời dựa trên chunk không đúng phạm vi vai trò. Bảng trên dùng `search_with_filter()` gọi riêng để mô phỏng "nếu agent có hỗ trợ lọc". Đây là giới hạn thiết kế thật sự của bài, không phải lỗi cài đặt — `EmbeddingStore.search_with_filter()` vẫn hoạt động đúng độc lập, nhưng `KnowledgeBaseAgent` chưa "nối" hai khả năng (RAG + filter) lại với nhau.
 
-| | `_mock_embed` (mock) | `LocalEmbedder` (thật) |
-| --- | :---: | :---: |
-| Số câu có chunk liên quan trong top-3 | 0 / 5 | **5 / 5** |
-| Score top-1 trung bình | ~0.24 (gần ngẫu nhiên) | ~0.71 (tách biệt rõ) |
-| Metadata filter (`customer_role`) có hoạt động đúng? | Có lọc đúng tập ứng viên, nhưng similarity sai nên top-1 vẫn sai chủ đề | Lọc đúng **và** similarity cũng đúng chủ đề (trừ câu 3, đúng ở top-2 do nhiễu ngữ nghĩa) |
+**So sánh ba lần chạy (cùng 5 câu hỏi, cùng `FixedSizeChunker(300,40)`):**
 
-Kết quả này minh chứng rõ ràng: `search_with_filter()` **luôn lọc metadata đúng theo logic đã cài đặt** ở cả hai lần chạy — vấn đề ở lần chạy mock nằm hoàn toàn ở chất lượng vector embedding, không phải ở logic store/agent. Điều này khẳng định code phần cá nhân (`EmbeddingStore`) hoạt động chính xác; chất lượng retrieval phụ thuộc vào embedder được truyền vào, đúng như thiết kế dependency injection của `embedding_fn`.
+| | `_mock_embed` (dữ liệu tóm tắt) | `LocalEmbedder` (dữ liệu tóm tắt) | `LocalEmbedder` (dữ liệu **đầy đủ**) |
+| --- | :---: | :---: | :---: |
+| Số chunk trong store | 105 | 105 | **1185** |
+| Số câu có chunk liên quan trong top-3 | 0 / 5 | 5 / 5 (1 câu chỉ đúng top-2) | **5 / 5 (cả 5 đúng top-1)** |
+| Score top-1 trung bình | ~0.24 (gần ngẫu nhiên) | ~0.71 | ~0.78 |
 
-**Điều hay nhất tôi học được (tự rút ra khi so sánh 2 lần chạy và khi mở rộng corpus):**
+Kết quả cho thấy rõ hai lớp cải thiện độc lập: (1) đổi từ mock sang embedder thật giúp similarity phản ánh đúng ngữ nghĩa; (2) thu thập lại dữ liệu **đầy đủ, chi tiết** thay vì bản tóm tắt giúp mỗi chunk mang đủ ngữ cảnh để phân biệt chính xác hơn, xoá luôn ca nhiễu ngữ nghĩa ở câu 3. Điều này khẳng định code phần cá nhân (`EmbeddingStore`, bao gồm `search_with_filter()`) hoạt động chính xác trong mọi trường hợp; biến số quyết định chất lượng kết quả cuối cùng là **chất lượng embedder** và **chất lượng/độ đầy đủ của dữ liệu nguồn**, đúng như thiết kế dependency injection của `embedding_fn` và đúng tinh thần của `docs/DATA_COLLECTION.md`.
 
-Có hai bài học rõ rệt: (1) sự khác biệt 0/5 → 5/5 chỉ bằng cách đổi `embedding_fn` cho thấy **chất lượng embedding quyết định chất lượng retrieval nhiều hơn** so với việc chunking hay lọc metadata có tinh vi đến đâu; (2) việc mở rộng corpus từ 10 lên 20 tài liệu — dù cùng chủ đề, cùng nguồn — đã đủ để tạo ra một trường hợp nhiễu ngữ nghĩa thực sự (câu 3), và cũng phơi bày một giới hạn thiết kế thật của `KnowledgeBaseAgent` (không truyền được `metadata_filter` vào `answer()`). Đây là hai lý do cụ thể vì sao README nhấn mạnh: (a) không dùng mock để kết luận chiến lược, và (b) luôn thử nghiệm với corpus đủ lớn/đa dạng trước khi kết luận một pipeline RAG "chạy tốt".
+**Điều hay nhất tôi học được (tự rút ra sau ba lần chạy):**
+
+Có ba bài học rõ rệt: (1) chất lượng embedding quyết định retrieval nhiều hơn chunking/filter tinh vi đến đâu; (2) **dữ liệu nguồn tóm tắt sơ sài — dù đúng chủ đề — vẫn có thể gây nhiễu retrieval**, vì chunk ngắn thiếu ngữ cảnh để phân biệt; thu thập verbatim đầy đủ giải quyết được vấn đề này mà không cần đổi chiến lược chunking hay embedder; (3) `KnowledgeBaseAgent` hiện tại là một RAG cơ bản đúng đặc tả, nhưng thiếu khả năng kết hợp filter — một hướng cải tiến thực tế nếu mở rộng bài sau này.
 
 > *Mục "điều học được từ thành viên khác/nhóm khác qua demo" sẽ bổ sung sau buổi demo chính thức với nhóm B7-E402 — chưa diễn ra tại thời điểm viết báo cáo này.*
 
@@ -223,7 +225,7 @@ Có hai bài học rõ rệt: (1) sự khác biệt 0/5 → 5/5 chỉ bằng cá
 | Hướng tiếp cận của tôi (My Approach)           | 10 / 10 | Giải thích chi tiết từng hàm đã cài đặt |
 | Hoàn thiện code (Core Implementation — tests)     | 30 / 30 | 42/42 test pass |
 | Dự đoán độ tương tự (Similarity Predictions) | 5 / 5 | 5/5 dự đoán đúng với `LocalEmbedder` |
-| Kết quả truy xuất của tôi (Competition Results) | 9 / 10 | 5/5 câu có chunk liên quan trong top-3 với embedder thật; trừ 1 điểm vì 5 câu hỏi là tự đề xuất, chưa phải bộ câu hỏi chính thức đã chốt cùng nhóm |
+| Kết quả truy xuất của tôi (Competition Results) | 9 / 10 | 5/5 câu đúng ngay top-1 với embedder thật trên dữ liệu đầy đủ; trừ 1 điểm vì 5 câu hỏi là tự đề xuất, chưa phải bộ câu hỏi chính thức đã chốt cùng nhóm |
 | **Tổng phần cá nhân**                      | **59 / 60** |
 
-> Sau khi nhóm B7-E402 họp chốt 5 câu hỏi đánh giá chính thức (`REPORT_NHOM.md` Phần 3), em sẽ chạy lại Phần 5 với đúng bộ câu hỏi đó để đối chiếu — dự kiến không đổi nhiều vì bộ 10 tài liệu và pipeline đã được kiểm chứng hoạt động tốt với embedder thật.
+> Sau khi nhóm B7-E402 họp chốt 5 câu hỏi đánh giá chính thức (`REPORT_NHOM.md` Phần 3), em sẽ chạy lại Phần 5 với đúng bộ câu hỏi đó để đối chiếu — dự kiến không đổi nhiều vì bộ 20 tài liệu (dữ liệu đầy đủ, không phải bản tóm tắt) và pipeline đã được kiểm chứng hoạt động tốt với embedder thật, cho kết quả 5/5 đúng top-1 trên bộ câu hỏi tự đề xuất.

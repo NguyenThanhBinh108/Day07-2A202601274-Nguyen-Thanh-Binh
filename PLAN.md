@@ -107,7 +107,15 @@ python -m pytest tests/ -v
   8. `shopeevip-membership` (buyer) — Chương trình thành viên ShopeeVIP
   9. `global-selling-program` (seller) — Chương trình bán hàng toàn cầu
   10. `parcel-locker-delivery` (buyer) — Giao hàng qua tủ khóa
-- [x] Verify toàn diện bộ **20 tài liệu**: `sources.csv` khớp 1-1 (20/20), tên file đúng chuẩn (chữ thường/không dấu/gạch ngang), `doc_id` duy nhất, đủ field bắt buộc cho cả 20 file, phân bổ `customer_role` cân đối (buyer=10, seller=6, both=4), 8 category khác nhau; nạp qua `build_knowledge_base()` → **62 chunk**; `pytest tests/ -v` vẫn 42/42 sau khi nhân đôi dữ liệu
+- [x] Verify toàn diện bộ **20 tài liệu**: `sources.csv` khớp 1-1 (20/20), tên file đúng chuẩn (chữ thường/không dấu/gạch ngang), `doc_id` duy nhất, đủ field bắt buộc cho cả 20 file, phân bổ `customer_role` cân đối (buyer=10, seller=6, both=4), 8 category khác nhau; nạp qua `build_knowledge_base()` → 62 chunk (bản tóm tắt ban đầu); `pytest tests/ -v` vẫn 42/42
+- [x] **Thu thập lại toàn bộ 20 file bằng nội dung verbatim đầy đủ** (theo phản hồi: dữ liệu tóm tắt qua WebFetch quá sơ sài, ví dụ so sánh trực tiếp với nội dung `payment-methods` người dùng dán ra cho thấy WebFetch chỉ trả bản tóm tắt qua model nhỏ, mất rất nhiều chi tiết/con số):
+  - Phát hiện: mỗi trang help.shopee.vn nhúng toàn bộ nội dung HTML gốc trong biến `window["FORGE_SSR_DATA_MAP"]` ngay trong SSR HTML — không cần qua WebFetch/model tóm tắt
+  - Viết script Python (`curl`/`requests` + regex trích JSON + `html2text`) tải lại cả 20 URL, trích đúng nội dung đầy đủ theo đúng `article id`, tôn trọng rate-limit (~1.2s/request)
+  - Tổng dung lượng tăng từ ~24.000 → **305.807 ký tự** (một số tài liệu là văn bản pháp lý đầy đủ: quy chế sàn 77.541 ký tự, chính sách bảo mật 42.987 ký tự, điều khoản Shopee Mall 33.464 ký tự)
+  - Dọn dẹp artifact định dạng do `html2text` (dòng `**`/`__` thừa, khoảng trắng non-breaking, dòng trống thừa) bằng script, giữ nguyên front matter đã kiểm chứng (doc_id/customer_role/category/document_version), chỉ thay phần nội dung
+  - Đối chiếu lại `document_version` với ngày "đăng tải/hiệu lực" tìm thấy trong toàn văn — phát hiện và sửa 1 lỗi ngày tháng do WebFetch tóm tắt sai trước đó (`voucher-discount-policy`: "14/11/2026" → đúng là "14/05/2026", ngày hiệu lực 23/05/2026 không đổi)
+  - Verify lại: `build_knowledge_base()` → **1185 chunk** (chunk_size=300/overlap=40), `pytest tests/ -v` vẫn 42/42 sau khi thay toàn bộ nội dung
+  - Re-run benchmark cá nhân (Bước 8) với dữ liệu đầy đủ: **5/5 câu đúng ngay top-1** (trước đó với dữ liệu tóm tắt: 4/5 top-1 + 1/5 top-2) — cập nhật đầy đủ vào `REPORT_CANHAN.md` Phần 5, kèm phân tích 3 lần chạy (mock/tóm tắt → local/tóm tắt → local/đầy đủ)
 - [ ] Ghi bảng tài liệu vào `REPORT_NHOM.md` Phần 1 — còn lại
 
 ### Bước 5 — Thiết kế chiến lược cá nhân (Bài 3.1 — 15đ nhóm) — CHƯA LÀM
