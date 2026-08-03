@@ -134,6 +134,11 @@ class ClauseChunker:
 - **Mô tả & lý do chọn:** *[CẦN ĐIỀN]*
 - **Kết quả benchmark:** *[CẦN ĐIỀN — bản hiện tại chạy bằng mock trên corpus riêng; phải chạy lại trên `data/k4_ecommerce` ở gốc với local embedder]*
 
+**Thành viên 5 — Đỗ Thu Liễu (2A202601898)**
+- **Loại chiến lược:** *[CẦN ĐIỀN — chọn một chiến lược chưa ai dùng, ví dụ `FixedSizeChunker` với overlap lớn hoặc `RecursiveChunker` với bộ separator tuỳ chỉnh]*
+- **Mô tả & lý do chọn:** *[CẦN ĐIỀN]*
+- **Kết quả benchmark:** *[CẦN ĐIỀN — chạy `bench.py` với `EMBEDDING_PROVIDER=local`]*
+
 ### So Sánh Giữa Các Thành Viên
 
 | Thành viên | Chiến lược | #chunk | Điểm truy xuất (/10) | Điểm mạnh | Điểm yếu |
@@ -142,6 +147,7 @@ class ClauseChunker:
 | Trần Chí Vũ | `RecursiveChunker` | 45 | *[CẦN ĐIỀN]* | Tôn trọng ranh giới đoạn | Trượt Q4 |
 | Trịnh Hải Đăng | `FixedSizeChunker` có overlap | 31 | *[CẦN ĐIỀN]* | Ít chunk, overlap giữ liên kết | Cắt ngang câu; trượt Q4 |
 | Đỗ Văn Linh | `SentenceChunker` | 38 | *[CẦN ĐIỀN]* | Chunk luôn trọn câu | Không tôn trọng ranh giới mục |
+| Đỗ Thu Liễu | *[CẦN ĐIỀN]* | — | *[CẦN ĐIỀN]* | — | — |
 
 *(Cột "Điểm truy xuất" của Bình lấy từ `python bench.py`; ba bạn còn lại điền sau khi chạy.)*
 
