@@ -3,51 +3,76 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Demo RAG — Lab 07 K4 (Trịnh Hải Đăng)</title>
+<title>Demo RAG — Lab 07 K4</title>
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+<div class="topnav">
+  <div class="brand">
+    <span class="dot"></span>
+    Lab 07 · RAG Demo
+  </div>
+  <nav>
+    <a href="#section-arch">Kiến trúc</a>
+    <a href="#section-stats">Dữ liệu</a>
+    <a href="#section-demo">Truy vấn</a>
+    <a href="#section-benchmark">Benchmark</a>
+  </nav>
+  <div class="actions">
+    <button class="theme-toggle" id="theme-toggle" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện sáng/tối">
+      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </button>
+  </div>
+</div>
+
 <div class="wrap">
 
   <header class="hero">
-    <h1>Demo trực tiếp: RAG trên chính sách TMĐT Shopee</h1>
-    <p>Lab 07 — Embedding &amp; Vector Store · K4 · Trịnh Hải Đăng (2A202601602) · Nhóm B7-E402</p>
+    <span class="eyebrow">Lab 07 · Embedding &amp; Vector Store · K4</span>
+    <h1>Truy xuất thông minh trên chính sách TMĐT Shopee</h1>
+    <p class="sub">Pipeline RAG (Retrieval-Augmented Generation) chạy thật trên 20 tài liệu chính sách công khai của Shopee — chunking, nhúng vector đa ngữ, tìm kiếm ngữ nghĩa và lọc metadata, có thể truy vấn trực tiếp ngay bên dưới.</p>
     <div class="badges">
-      <span class="badge">20 tài liệu · help.shopee.vn</span>
-      <span class="badge">LocalEmbedder (đa ngữ, thật)</span>
-      <span class="badge">Pipeline Python thật, không dữ liệu giả lập</span>
+      <span class="badge">Trịnh Hải Đăng · 2A202601602 · B7-E402</span>
+      <span class="badge">LocalEmbedder đa ngữ (thật)</span>
+      <span class="badge">Không dữ liệu tĩnh giả lập</span>
+    </div>
+
+    <div class="hero-stats" id="hero-stats">
+      <div class="hero-stat"><div class="value">—</div><div class="label">tài liệu</div></div>
+      <div class="hero-stat"><div class="value">—</div><div class="label">chunk (baseline)</div></div>
+      <div class="hero-stat"><div class="value">42/42</div><div class="label">unit test pass</div></div>
+      <div class="hero-stat"><div class="value">5/5</div><div class="label">benchmark đúng top-1</div></div>
     </div>
   </header>
 
   <div id="loading-banner" class="loading-banner">
-    Đang tải pipeline (LocalEmbedder + nhúng ~1.900 chunk cho 2 chiến lược)… lần đầu có thể mất 1-2 phút.
+    <span class="spinner"></span>
+    Đang tải pipeline thật (LocalEmbedder + nhúng vector cho 2 chiến lược chunking)… lần đầu có thể mất 1-2 phút.
   </div>
 
   <section id="section-arch">
-    <h2><span class="step">1</span>Kiến trúc</h2>
-    <div class="pipeline">
-      <div class="stage"><h3>data/*.md</h3><p>Front matter + nội dung verbatim đầy đủ</p></div>
-      <div class="arrow">→</div>
-      <div class="stage"><h3>ingest.py</h3><p>Parse metadata, gắn vào từng chunk</p></div>
-      <div class="arrow">→</div>
-      <div class="stage"><h3>chunking.py</h3><p>FixedSizeChunker / ClauseChunker (custom)</p></div>
-      <div class="arrow">→</div>
-      <div class="stage"><h3>LocalEmbedder</h3><p>sentence-transformers đa ngữ</p></div>
-      <div class="arrow">→</div>
-      <div class="stage"><h3>EmbeddingStore</h3><p>search() / search_with_filter()</p></div>
-      <div class="arrow">→</div>
-      <div class="stage"><h3>KnowledgeBaseAgent</h3><p>retrieve → answer</p></div>
+    <div class="section-head">
+      <span class="step-badge">1</span>
+      <div><h2>Kiến trúc hệ thống</h2></div>
     </div>
+    <div class="pipeline" id="pipeline"></div>
   </section>
 
   <section id="section-stats">
-    <h2><span class="step">2</span>Dữ liệu</h2>
+    <div class="section-head">
+      <span class="step-badge">2</span>
+      <div><h2>Dữ liệu</h2><p class="desc">20 tài liệu chính sách công khai từ help.shopee.vn, thu thập verbatim đầy đủ</p></div>
+    </div>
     <div class="tiles" id="stat-tiles"></div>
     <div class="viz-root" id="role-chart"></div>
   </section>
 
   <section id="section-demo">
-    <h2><span class="step">3</span>Truy vấn trực tiếp (pipeline thật)</h2>
+    <div class="section-head">
+      <span class="step-badge">3</span>
+      <div><h2>Truy vấn trực tiếp</h2><p class="desc">Gọi thẳng <code>EmbeddingStore.search()</code> / <code>search_with_filter()</code> thật — không phải kết quả dựng sẵn</p></div>
+    </div>
     <div class="demo-form">
       <input id="question" type="text" placeholder="Nhập câu hỏi, vd: Shopee hỗ trợ những phương thức thanh toán nào?" />
       <select id="strategy">
@@ -62,13 +87,20 @@
       </select>
       <button id="btn-search" disabled>Tìm kiếm</button>
     </div>
+    <div class="example-chips" id="example-chips"></div>
     <div id="answer-container"></div>
     <div id="results-container"></div>
-    <p class="note">Không có <code>OPENAI_API_KEY</code> trong môi trường demo này nên "câu trả lời" hiển thị là đoạn ngữ cảnh đã truy xuất (extractive), không phải văn bản do LLM sinh — điều này được ghi rõ để không gây hiểu nhầm.</p>
+    <p class="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Không có <code>OPENAI_API_KEY</code> trong môi trường demo này nên "câu trả lời" hiển thị là đoạn ngữ cảnh đã truy xuất (extractive), không phải văn bản do LLM sinh.
+    </p>
   </section>
 
   <section id="section-benchmark">
-    <h2><span class="step">4</span>Benchmark 5 câu hỏi — so sánh 2 chiến lược</h2>
+    <div class="section-head">
+      <span class="step-badge">4</span>
+      <div><h2>Benchmark 5 câu hỏi</h2><p class="desc">So sánh <strong>FixedSizeChunker</strong> (baseline) vs <strong>ClauseChunker</strong> (custom) — tính lại mỗi lần khởi động</p></div>
+    </div>
     <div id="benchmark-container"></div>
   </section>
 

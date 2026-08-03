@@ -17,7 +17,13 @@ pip install -r demo/requirements-demo.txt    # Flask
 python demo/server.py
 ```
 
-Lần đầu chạy sẽ tải model đa ngữ (`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, ~20s) rồi nhúng vector cho ~1.900 chunk theo cả 2 chiến lược (~1-2 phút, chỉ CPU). Khi thấy dòng:
+**Lần đầu chạy** sẽ tải model đa ngữ (`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, ~20-40s) rồi nhúng vector cho ~1.900 chunk theo cả 2 chiến lược (~1-2 phút, chỉ CPU) — kết quả nhúng được **lưu cache** vào `demo/.cache/*.pkl`.
+
+**Các lần chạy sau** (dữ liệu không đổi): chỉ mất **~30-35 giây** — hầu như toàn bộ thời gian là tải lại model (không thể cache phần này vì cần model để nhúng câu hỏi mới lúc demo trực tiếp), phần nạp ~1900 chunk từ cache chỉ mất dưới 1 giây thay vì phải nhúng lại từ đầu.
+
+Cache tự động **vô hiệu hóa nếu bạn sửa/thêm/xóa** bất kỳ file nào trong `data/k4_ecommerce/` (dựa trên hash tên file + thời điểm sửa đổi) — không lo phục vụ dữ liệu cũ.
+
+Khi thấy dòng:
 
 ```
 [demo] San sang. Mo http://127.0.0.1:5000
@@ -25,7 +31,9 @@ Lần đầu chạy sẽ tải model đa ngữ (`sentence-transformers/paraphras
 
 → mở trình duyệt tại **http://127.0.0.1:5000**.
 
-> Nên khởi động server **trước** khi vào phòng thuyết trình vài phút để không phải chờ trực tiếp trên lớp.
+> Nên khởi động server **trước** khi vào phòng thuyết trình vài phút để không phải chờ trực tiếp trên lớp. Nếu đã chạy ít nhất 1 lần trước đó trên cùng máy, lần khởi động tiếp theo sẽ rất nhanh nhờ cache.
+
+> **Nếu server không khởi động được vì cổng 5000 đã bị chiếm:** có thể một tiến trình `python demo/server.py` cũ từ lần chạy trước chưa tắt hẳn. Tìm và dừng nó (Windows: `tasklist` tìm `python.exe` rồi `taskkill /F /PID <pid>`; macOS/Linux: `lsof -i :5000` rồi `kill <pid>`), sau đó chạy lại.
 
 ## Có gì trong trang demo
 

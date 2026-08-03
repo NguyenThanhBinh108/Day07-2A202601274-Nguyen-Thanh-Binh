@@ -12,7 +12,9 @@ Mở trình duyệt: http://127.0.0.1:5000
 """
 from __future__ import annotations
 
+import hashlib
 import os
+import pickle
 import sys
 import time
 from pathlib import Path
@@ -26,10 +28,60 @@ sys.path.insert(0, str(DEMO_DIR))
 
 from clause_chunker import ClauseChunker  # noqa: E402
 from ingest import build_knowledge_base, load_documents  # noqa: E402
-from src import KnowledgeBaseAgent  # noqa: E402
+from src import EmbeddingStore, KnowledgeBaseAgent  # noqa: E402
 from src.chunking import FixedSizeChunker  # noqa: E402
 
 DATA_DIR = ROOT_DIR / "data" / "k4_ecommerce"
+CACHE_DIR = DEMO_DIR / ".cache"
+
+
+def _corpus_fingerprint() -> str:
+    """Hash tên file + thời điểm sửa đổi cuối của toàn bộ data/k4_ecommerce.
+
+    Dùng làm khóa cache: nếu bất kỳ file .md nào được thêm/sửa/xóa, fingerprint
+    đổi -> cache cũ tự động bị bỏ qua, không bao giờ phục vụ dữ liệu embedding
+    đã lỗi thời.
+    """
+    h = hashlib.sha256()
+    for path in sorted(DATA_DIR.glob("*.md")):
+        h.update(path.name.encode())
+        h.update(str(path.stat().st_mtime_ns).encode())
+    return h.hexdigest()[:16]
+
+
+def _load_or_build_store(name: str, chunker, embed) -> "EmbeddingStore":
+    """Nạp store từ cache trên đĩa nếu có, nếu không thì build (nhúng vector) rồi lưu cache.
+
+    Việc build tốn thời gian nhất nằm ở bước gọi embedding_fn cho từng chunk
+    (~1900 chunk cho cả 2 chiến lược). Cache lại kết quả (nội dung + vector đã
+    nhúng) giúp các lần khởi động sau chỉ mất vài giây thay vì 1-2 phút, miễn
+    là dữ liệu nguồn (data/k4_ecommerce/*.md) không đổi.
+    """
+    CACHE_DIR.mkdir(exist_ok=True)
+    fingerprint = _corpus_fingerprint()
+    cache_path = CACHE_DIR / f"{name}-{fingerprint}.pkl"
+
+    if cache_path.exists():
+        t0 = time.time()
+        with open(cache_path, "rb") as f:
+            records = pickle.load(f)
+        store = EmbeddingStore(collection_name=name, embedding_fn=embed)
+        store._store = records
+        print(f"[demo] Store '{name}': nạp {len(records)} chunk từ cache "
+              f"({time.time() - t0:.1f}s, không cần nhúng lại)", flush=True)
+        return store
+
+    t0 = time.time()
+    store = build_knowledge_base(str(DATA_DIR), embedding_fn=embed, chunker=chunker)
+    print(f"[demo] Store '{name}': nhúng mới {store.get_collection_size()} chunk "
+          f"({time.time() - t0:.1f}s)", flush=True)
+
+    # Dọn cache cũ (fingerprint khác) của cùng chiến lược trước khi ghi cache mới
+    for old in CACHE_DIR.glob(f"{name}-*.pkl"):
+        old.unlink(missing_ok=True)
+    with open(cache_path, "wb") as f:
+        pickle.dump(store._store, f)
+    return store
 
 BENCHMARK_QUERIES = [
     {
@@ -80,17 +132,10 @@ def _load_pipelines() -> None:
 
     docs = load_documents(str(DATA_DIR))
 
-    t0 = time.time()
-    store_fixed = build_knowledge_base(
-        str(DATA_DIR), embedding_fn=embed, chunker=FixedSizeChunker(chunk_size=300, overlap=40)
+    store_fixed = _load_or_build_store(
+        "fixed_size", FixedSizeChunker(chunk_size=300, overlap=40), embed
     )
-    print(f"[demo] Store 'fixed_size' sẵn sàng: {store_fixed.get_collection_size()} chunk "
-          f"({time.time() - t0:.1f}s)", flush=True)
-
-    t0 = time.time()
-    store_clause = build_knowledge_base(str(DATA_DIR), embedding_fn=embed, chunker=ClauseChunker())
-    print(f"[demo] Store 'clause' sẵn sàng: {store_clause.get_collection_size()} chunk "
-          f"({time.time() - t0:.1f}s)", flush=True)
+    store_clause = _load_or_build_store("clause", ClauseChunker(), embed)
 
     stores = {"fixed_size": store_fixed, "clause": store_clause}
     agents = {name: KnowledgeBaseAgent(store=s, llm_fn=lambda p: p) for name, s in stores.items()}
