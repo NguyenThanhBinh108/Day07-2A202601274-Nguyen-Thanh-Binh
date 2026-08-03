@@ -83,7 +83,7 @@ python -m pytest tests/ -v
 ### Bước 4 — Chuẩn bị dữ liệu nhóm (song song với nhóm, Bài 3.0) — DỮ LIỆU XONG, REPORT CHƯA
 - [x] Đọc `docs/DATA_COLLECTION.md` + `K4_VARIANT.md` (bắt buộc: `customer_role`, `source_url`, `retrieved_at`, `document_version`)
 - [x] Phạm vi đã chọn: **1 nguồn duy nhất — Shopee (help.shopee.vn)**, kết hợp 3 mảng đổi trả + người bán + thanh toán/giao hàng (đã cân nhắc và loại phương án trộn nhiều sàn vì không nhất quán)
-- [x] Thu thập đủ **10 tài liệu** (đề cho khoảng 5-10 → luôn làm mức tối đa) vào `data/k4_ecommerce/`, kèm `sources.csv` đủ 10 dòng:
+- [x] **Mở rộng vượt khung đề bài theo yêu cầu riêng của Đăng**: từ 10 → **20 tài liệu** (đề chỉ yêu cầu 5-10; 10 tài liệu thêm là để có kho dữ liệu phong phú hơn cho thử nghiệm cá nhân, không bắt buộc cho phần chấm điểm nhóm). 10 tài liệu ban đầu vào `data/k4_ecommerce/`, kèm `sources.csv` đủ 10 dòng:
   1. `return-refund-policy` (buyer) — Chính sách trả hàng và hoàn tiền
   2. `return-refund-general-rules` (buyer) — Quy định chung trả hàng/hoàn tiền
   3. `return-shipping-fee` (buyer) — Phương thức gửi hàng hoàn trả & phí hoàn trả
@@ -95,6 +95,19 @@ python -m pytest tests/ -v
   9. `delivery-process` (buyer) — Quy trình giao hàng cho người mua
   10. `privacy-policy` (both) — Chính sách bảo mật
 - [x] Đã verify nạp bằng `build_knowledge_base()` trong `ingest.py`: 10 doc → 31 chunk, metadata `customer_role`/`category` đầy đủ; `pytest tests/ -v` vẫn 42/42 pass
+- [x] **Rà soát chuẩn hóa lần 2** theo đúng checklist `docs/DATA_COLLECTION.md`: đổi tên `returns-policy.md` → `return-refund-policy.md` và `seller-listing.md` → `seller-listing-rules.md` cho khớp `doc_id` (quy tắc "tên file nên trùng doc_id"); cập nhật `sources.csv` khớp 1-1; chuẩn hóa `license_or_permission` về đúng thuật ngữ ví dụ (`public-page`)
+- [x] **Mở rộng lần 3 (theo yêu cầu)**: thêm **10 tài liệu mới**, cùng nguồn help.shopee.vn, mở rộng chủ đề (bảo hành, chống gian lận người bán, mã giảm giá/voucher, quy trình khiếu nại, điều khoản Shopee Mall, hướng dẫn COD, ShopeeVIP, chương trình bán hàng quốc tế, giao hàng tủ khóa) — không trùng lặp nội dung với 10 file đầu:
+  1. `warranty-policy` (buyer) — Chính sách bảo hành sản phẩm
+  2. `seller-anti-fraud-policy` (seller) — Chống gian lận & xử lý người bán vi phạm
+  3. `voucher-discount-policy` (both) — Chính sách chung mã giảm giá
+  4. `voucher-types` (buyer) — Các loại voucher trên Shopee
+  5. `dispute-resolution-process` (both) — Quy trình giải quyết tranh chấp/khiếu nại
+  6. `shopee-mall-terms` (seller) — Điều khoản dịch vụ Shopee Mall
+  7. `cod-payment-guide` (buyer) — Hướng dẫn thanh toán COD
+  8. `shopeevip-membership` (buyer) — Chương trình thành viên ShopeeVIP
+  9. `global-selling-program` (seller) — Chương trình bán hàng toàn cầu
+  10. `parcel-locker-delivery` (buyer) — Giao hàng qua tủ khóa
+- [x] Verify toàn diện bộ **20 tài liệu**: `sources.csv` khớp 1-1 (20/20), tên file đúng chuẩn (chữ thường/không dấu/gạch ngang), `doc_id` duy nhất, đủ field bắt buộc cho cả 20 file, phân bổ `customer_role` cân đối (buyer=10, seller=6, both=4), 8 category khác nhau; nạp qua `build_knowledge_base()` → **62 chunk**; `pytest tests/ -v` vẫn 42/42 sau khi nhân đôi dữ liệu
 - [ ] Ghi bảng tài liệu vào `REPORT_NHOM.md` Phần 1 — còn lại
 
 ### Bước 5 — Thiết kế chiến lược cá nhân (Bài 3.1 — 15đ nhóm) — CHƯA LÀM
@@ -108,17 +121,16 @@ python -m pytest tests/ -v
 - [ ] Bắt buộc theo K4: ít nhất 1 câu cần `metadata_filter={"customer_role": "seller"|"buyer"}`
 - [ ] Ghi vào `REPORT_NHOM.md` Phần 3
 
-### Bước 7 — Dự đoán cosine similarity (Bài 3.3 — 5đ cá nhân) — ĐÃ XONG (bằng mock, cần re-run với local embedder)
+### Bước 7 — Dự đoán cosine similarity (Bài 3.3 — 5đ cá nhân) — ĐÃ XONG
 - [x] Chọn 5 cặp câu, dự đoán similarity cao/thấp trước
-- [x] Chạy `compute_similarity()` thật với `_mock_embed`, ghi vào `REPORT_CANHAN.md` Phần 4 — kết quả cho thấy rõ mock gần như ngẫu nhiên (4/5 dự đoán sai), đúng cảnh báo của README
-- [ ] **Việc còn lại:** chạy lại bằng `EMBEDDING_PROVIDER=local` khi cài xong embedder thật (gộp chung với Bước 5)
+- [x] Cài `sentence-transformers` (local embedder, `requirements-local.txt`) và tải model `paraphrase-multilingual-MiniLM-L12-v2`
+- [x] Chạy `compute_similarity()` với `LocalEmbedder` thật → **5/5 dự đoán đúng**, ghi vào `REPORT_CANHAN.md` Phần 4 kèm so sánh với lần chạy mock trước đó (4/5 sai) để minh họa vì sao không dùng mock đánh giá ngữ nghĩa
 
-### Bước 8 — Chạy benchmark & so sánh (Bài 3.4) — NHÁP XONG (bằng mock + câu hỏi tự đề xuất), CHỜ NHÓM CHỐT CHÍNH THỨC
-- [x] Đã chạy nháp 5 câu hỏi tự đề xuất (2 câu có `metadata_filter={"customer_role":"seller"}`) trên `FixedSizeChunker(300,40)` + `_mock_embed`, ghi top-1/score/relevant vào `REPORT_CANHAN.md` Phần 5 — kết quả 0/5 relevant, đúng như dự kiến vì dùng mock
-- [ ] Thay bằng **5 câu hỏi chính thức của nhóm** (Bước 6) khi có
-- [ ] Chạy lại toàn bộ với `EMBEDDING_PROVIDER=local`
+### Bước 8 — Chạy benchmark & so sánh (Bài 3.4) — PHẦN CÁ NHÂN ĐÃ XONG, PHẦN NHÓM CHƯA
+- [x] Chạy 5 câu hỏi tự đề xuất (2 câu có `metadata_filter={"customer_role":"seller"}`, đúng yêu cầu K4) trên `FixedSizeChunker(300,40)` + `LocalEmbedder` thật, corpus 20 tài liệu (105 chunk) → **5/5 chunk liên quan trong top-3** (4/5 đúng top-1, 1/5 đúng top-2 do nhiễu ngữ nghĩa sau khi mở rộng corpus), ghi đầy đủ vào `REPORT_CANHAN.md` Phần 5 kèm bảng so sánh mock (0/5) vs local (5/5), và phát hiện thêm: `KnowledgeBaseAgent.answer()` hiện không hỗ trợ `metadata_filter` (đúng theo signature đề bài) — đã ghi rõ giới hạn này
+- [ ] Thay bằng **5 câu hỏi chính thức của nhóm** khi họp chốt xong (Bước 6) — đối chiếu lại, dự kiến không đổi nhiều
 - [ ] So sánh trong nhóm: chiến lược nào tốt hơn, có đảo ngược giữa câu hỏi không, metadata filter có giúp không
-- [ ] Cập nhật `REPORT_CANHAN.md` Phần 5 + `REPORT_NHOM.md` Phần 3
+- [ ] Cập nhật `REPORT_NHOM.md` Phần 3 (đây là phần việc của nhóm, không phải cá nhân)
 
 ### Bước 9 — Phân tích lỗi (Bài 3.5) — CHƯA LÀM
 - [ ] Tìm ít nhất 1 failure case, giải thích nguyên nhân (chunk sai kích thước/thiếu metadata/câu hỏi mơ hồ), đề xuất cải thiện
@@ -144,7 +156,9 @@ python -m pytest tests/ -v
 
 ## 4. Đang làm tiếp theo (next action)
 
-**Toàn bộ phần cá nhân (60đ) đã hoàn thiện ở mức "chạy được, có số liệu thật"**: code (30/30), khởi động (5/5), hướng tiếp cận (10/10), dự đoán similarity (5/5), kết quả truy xuất nháp (Phần 5, hiện 0/5 relevant vì dùng mock — tự đánh giá tạm 3/10). Điểm cần cải thiện trước khi nộp thật:
-1. Cài `EMBEDDING_PROVIDER=local` (Bước 5) rồi chạy lại Phần 4 + Phần 5 của `REPORT_CANHAN.md` với embedder thật.
-2. Chờ nhóm chốt 5 câu hỏi benchmark chính thức (Bước 6) rồi thay vào Phần 5 thay vì bộ câu hỏi tự đề xuất hiện tại.
-3. Sau đó mới sang `REPORT_NHOM.md` (thiết kế chiến lược, chất lượng truy xuất nhóm, demo, phân tích lỗi).
+**Toàn bộ phần cá nhân (60/60đ) đã hoàn thiện với số liệu thật, tự đánh giá 59/60**: code (30/30, 42/42 test), khởi động (5/5), hướng tiếp cận (10/10), dự đoán similarity (5/5 đúng với `LocalEmbedder`), kết quả truy xuất (9/10 — 5/5 chunk liên quan top-3 với embedder thật, chỉ trừ vì câu hỏi chưa phải bản chính thức của nhóm). Đã cài xong `sentence-transformers` + tải model đa ngữ, không còn phụ thuộc mock.
+
+Việc còn lại thuộc phạm vi **nhóm**, không phải cá nhân:
+1. Nhóm B7-E402 họp thống nhất 5 câu hỏi benchmark chính thức + gold answer (Bước 6) → đối chiếu lại Phần 5 của `REPORT_CANHAN.md` cho khớp.
+2. Từng thành viên thử chiến lược chunking riêng, so sánh baseline (Bước 5, `REPORT_NHOM.md` Phần 2).
+3. Tổng hợp `REPORT_NHOM.md` đầy đủ 4 phần: lựa chọn tài liệu, chiến lược, câu hỏi đánh giá, demo + phân tích lỗi (Bước 4/9 phần ghi report, Bước 10 hoàn thiện & nộp bài).

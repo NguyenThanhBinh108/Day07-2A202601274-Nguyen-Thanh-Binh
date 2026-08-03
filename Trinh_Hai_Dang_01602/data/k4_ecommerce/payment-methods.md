@@ -8,7 +8,6 @@ customer_role: buyer
 category: payment
 language: vi
 ---
-
 # Shopee hiện đang có những phương thức thanh toán nào
 
 Shopee hỗ trợ 10 phương thức thanh toán sau đây, không hỗ trợ các phương thức ngoài danh sách này (ví dụ chuyển khoản/nộp tiền trực tiếp ngoài hệ thống):
