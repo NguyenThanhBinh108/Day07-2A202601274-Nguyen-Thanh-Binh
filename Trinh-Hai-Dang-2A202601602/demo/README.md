@@ -5,7 +5,7 @@ Giao diện web chạy **pipeline RAG thật** từ `src/` (không phải dữ l
 ## Cài đặt (một lần)
 
 ```bash
-cd Trinh_Hai_Dang_01602
+cd Trinh-Hai-Dang-2A202601602
 pip install -r requirements.txt
 pip install -r requirements-local.txt        # bắt buộc — cần LocalEmbedder thật
 pip install -r demo/requirements-demo.txt    # Flask

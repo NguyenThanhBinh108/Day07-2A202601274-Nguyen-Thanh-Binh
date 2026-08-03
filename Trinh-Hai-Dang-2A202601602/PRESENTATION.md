@@ -1,9 +1,20 @@
 # Lab 07 — Embedding & Vector Store (K4: Chính sách TMĐT Shopee)
 
-> Tài liệu tổng quan phục vụ thuyết trình. Mô tả toàn bộ nội dung trong folder nộp bài `Trinh_Hai_Dang_01602/`: kiến trúc hệ thống, dữ liệu đã thu thập, kết quả thực nghiệm, và cách chạy demo trực tiếp.
+> Tài liệu tổng quan phục vụ thuyết trình. Mô tả toàn bộ nội dung trong folder nộp bài `Trinh-Hai-Dang-2A202601602/`: kiến trúc hệ thống, dữ liệu đã thu thập, kết quả thực nghiệm, và cách chạy demo trực tiếp.
 >
 > **Sinh viên:** Trịnh Hải Đăng — 2A202601602 — Nhóm B7-E402
 > **Chủ đề K4:** Chính sách thương mại điện tử Shopee (đổi trả, người bán, thanh toán/giao hàng)
+
+**Mục lục**
+
+1. [Tóm tắt 30 giây](#1-tóm-tắt-30-giây)
+2. [Kiến trúc hệ thống](#2-kiến-trúc-hệ-thống)
+3. [Bản đồ thư mục](#3-bản-đồ-thư-mục)
+4. [Dữ liệu: 20 tài liệu chính sách Shopee](#4-dữ-liệu-20-tài-liệu-chính-sách-shopee)
+5. [Kết quả thực nghiệm chính](#5-kết-quả-thực-nghiệm-chính)
+6. [Phát hiện đáng trình bày](#6-phát-hiện-đáng-trình-bày-chiến-lược-hợp-lý-về-lý-thuyết-vẫn-có-thể-thua-baseline)
+7. [Cách chạy demo trực tiếp](#7-cách-chạy-demo-trực-tiếp-dùng-khi-thuyết-trình)
+8. [Việc còn lại trước khi nộp](#8-việc-còn-lại-trước-khi-nộp-theo-planmd)
 
 ---
 
@@ -15,7 +26,7 @@ Xây dựng một hệ thống **RAG (Retrieval-Augmented Generation)** hoàn ch
 
 ## 2. Kiến trúc hệ thống
 
-```
+```text
                     ┌─────────────────────┐
    data/*.md   ───▶ │  ingest.py           │
  (front matter      │  parse_front_matter  │
@@ -103,7 +114,7 @@ Xây dựng một hệ thống **RAG (Retrieval-Augmented Generation)** hoàn ch
 
 ### 5.1 Code core — 42/42 test pass
 
-```
+```text
 pytest tests/ -v
 ============================= 42 passed in 0.09s ==============================
 ```
@@ -195,6 +206,6 @@ PY
 
 ## 8. Việc còn lại trước khi nộp (theo `PLAN.md`)
 
-- [ ] Nhóm B7-E402 họp: các thành viên khác điền chiến lược riêng vào `REPORT_NHOM.md` Mục 2 (mỗi người một chiến lược khác nhau, chạy trên cùng 5 câu hỏi ở Mục 3)
-- [ ] Thuyết trình & demo trước lớp, điền phần "bài học từ nhóm khác" vào cả hai báo cáo
-- [ ] Rà soát lần cuối `pytest tests/ -v` trước khi nộp
+- [x] `REPORT_NHOM.md` — 5 thành viên nhóm Bazoka đã điền chiến lược riêng ở Mục 2 (mỗi người một chiến lược khác nhau), benchmark thật trên cùng corpus + cùng 5 câu hỏi ở Mục 3
+- [ ] Buổi thuyết trình & demo trước lớp chưa diễn ra — sau đó điền phần "bài học từ nhóm khác" vào cả hai báo cáo, và chấm điểm mục Demo trong `REPORT_NHOM.md`
+- [x] `pytest tests/ -v` — 42/42, đã rà soát lần cuối
