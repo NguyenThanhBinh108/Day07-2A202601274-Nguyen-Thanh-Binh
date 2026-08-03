@@ -127,7 +127,7 @@ collecting ... collected 42 items
 
 **Số lượng bài test vượt qua (pass):** 42 / 42
 
-> Lệnh chạy trên gói `src` cá nhân (gói `01044_TranChiVu/src`):
+> Lệnh chạy trên gói `src` cá nhân (gói `Tran-Chi-Vu-2A202601044/src`):
 > `LAB_SOLUTION_PACKAGE=src pytest ../tests/ -v` (dùng `--import-mode=importlib` để chắc chắn import đúng gói cá nhân).
 
 ---

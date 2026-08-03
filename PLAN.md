@@ -1,18 +1,18 @@
 # PLAN.md — Kế hoạch làm Lab 07 (K4: Embedding & Vector Store — Chính sách TMĐT)
 
 > File kế hoạch cá nhân, tổng hợp từ README.md, exercises.md, K4_VARIANT.md, docs/SCORING.md, docs/DATA_COLLECTION.md, docs/EVALUATION.md.
-> Sinh viên: Trịnh Hải Đăng — MSSV 01602 — Lớp K4
-> Nộp bài trong: `Trinh_Hai_Dang_01602/`
+> Sinh viên: Trịnh Hải Đăng — MSSV 2A202601602 — Lớp K4
+> Nộp bài trong: `Trinh-Hai-Dang-2A202601602/`
 
 ---
 
 ## 0. Việc cần làm ngay: chuẩn bị folder nộp bài — ĐÃ XONG
 
-- [x] Tạo folder `Trinh_Hai_Dang_01602/` ở root repo
+- [x] Tạo folder `Trinh-Hai-Dang-2A202601602/` ở root repo
 - [x] Copy `src/`, `tests/`, `ingest.py`, `main.py`, `data/`, `report/`, `requirements.txt`, `requirements-local.txt`, `.env.example` vào đó
 
 ```
-Trinh_Hai_Dang_01602/
+Trinh-Hai-Dang-2A202601602/
 ├── src/                  ← chunking.py, store.py, agent.py, embeddings.py, models.py (đã hoàn thành TODO)
 ├── tests/                ← test_solution.py — KHÔNG sửa file test
 ├── ingest.py             ← pipeline đã cung cấp sẵn
@@ -26,10 +26,10 @@ Trinh_Hai_Dang_01602/
 └── .env.example          ← đổi tên thành .env khi cần EMBEDDING_PROVIDER=local (Bước 5)
 ```
 
-Toàn bộ code TODO viết trực tiếp trong `Trinh_Hai_Dang_01602/src/`. Chạy test bằng:
+Toàn bộ code TODO viết trực tiếp trong `Trinh-Hai-Dang-2A202601602/src/`. Chạy test bằng:
 
 ```bash
-cd Trinh_Hai_Dang_01602
+cd Trinh-Hai-Dang-2A202601602
 python -m pytest tests/ -v
 ```
 
@@ -39,7 +39,7 @@ python -m pytest tests/ -v
 
 | Phần | Điểm | Nộp ở đâu |
 |---|---|---|
-| Code core (`src/`) pass test | 30 | `Trinh_Hai_Dang_01602/src/` |
+| Code core (`src/`) pass test | 30 | `Trinh-Hai-Dang-2A202601602/src/` |
 | Hướng tiếp cận (giải thích code) | 10 | `REPORT_CANHAN.md` §2 |
 | Kết quả truy xuất (5 câu benchmark) | 10 | `REPORT_CANHAN.md` §5 |
 | Khởi động (cosine + chunking math) | 5 | `REPORT_CANHAN.md` §1 |
@@ -56,7 +56,7 @@ python -m pytest tests/ -v
 ## 2. Thứ tự công việc (làm theo đúng thứ tự này)
 
 ### Bước 1 — Setup môi trường — ĐÃ XONG
-- [x] Cài `pytest`, `python-dotenv` trong `Trinh_Hai_Dang_01602/`
+- [x] Cài `pytest`, `python-dotenv` trong `Trinh-Hai-Dang-2A202601602/`
 - [x] Chạy `pytest tests/ -v` baseline (TODO chưa làm → nhiều test fail, đúng kỳ vọng)
 
 ### Bước 2 — Khởi động lý thuyết (Bài 1.1, 1.2 — 5đ) — ĐÃ XONG
@@ -125,10 +125,10 @@ python -m pytest tests/ -v
 - [ ] Ghi vào `REPORT_NHOM.md` Phần 4
 
 ### Bước 10 — Hoàn thiện & nộp bài (làm cuối cùng) — CHƯA LÀM
-- [x] `pytest tests/ -v` toàn bộ pass trong `Trinh_Hai_Dang_01602/` (42/42 — nhưng cần chạy lại lần cuối trước khi nộp)
+- [x] `pytest tests/ -v` toàn bộ pass trong `Trinh-Hai-Dang-2A202601602/` (42/42 — nhưng cần chạy lại lần cuối trước khi nộp)
 - [ ] Rà lại `REPORT_CANHAN.md` đủ 5 phần, `REPORT_NHOM.md` đủ 4 phần
 - [ ] Kiểm tra `data/` không chứa dữ liệu nhạy cảm/đăng nhập
-- [x] Đảm bảo mọi thứ nằm trong `Trinh_Hai_Dang_01602/`
+- [x] Đảm bảo mọi thứ nằm trong `Trinh-Hai-Dang-2A202601602/`
 
 ---
 
@@ -138,7 +138,7 @@ python -m pytest tests/ -v
 - [x] `src/` hoàn thành TODO cá nhân
 - [ ] `REPORT_NHOM.md` đầy đủ (1 file/nhóm)
 - [ ] `REPORT_CANHAN.md` đầy đủ (1 file/sinh viên — của Đăng)
-- [x] Toàn bộ code + báo cáo nằm trong `Trinh_Hai_Dang_01602/`
+- [x] Toàn bộ code + báo cáo nằm trong `Trinh-Hai-Dang-2A202601602/`
 
 ---
 
