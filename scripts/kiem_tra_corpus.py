@@ -69,7 +69,8 @@ def main() -> int:
         if doc_id:
             kiem_tra(doc_id not in doc_ids, f"{ten}: doc_id '{doc_id}' trùng với {doc_ids.get(doc_id)}")
             doc_ids[doc_id] = ten
-            kiem_tra(doc_id == path.stem, f"{ten}: doc_id '{doc_id}' không trùng tên file", chan=False)
+            # CHECKPOINT 2 của đề bài coi doc_id != tên file là THIẾU METADATA -> để mức chặn.
+            kiem_tra(doc_id == path.stem, f"{ten}: doc_id '{doc_id}' phải trùng tên file '{path.stem}' (CHECKPOINT 2)")
 
         kiem_tra(role in VAI_TRO_HOP_LE, f"{ten}: customer_role='{role}' không thuộc {sorted(VAI_TRO_HOP_LE)}")
         kiem_tra(NGAY.match(str(meta.get("retrieved_at", ""))) is not None,
@@ -91,6 +92,10 @@ def main() -> int:
              "K4: phải có ít nhất 1 tài liệu customer_role=seller (hoặc both) cho câu hỏi lọc metadata")
     kiem_tra(vai_tro.get("buyer", 0) + vai_tro.get("both", 0) >= 1,
              "K4: phải có ít nhất 1 tài liệu customer_role=buyer (hoặc both)")
+    # CHECKPOINT 2: nếu mọi file cùng một customer_role thì filter không loại được gì,
+    # và mục 7 sẽ không chứng minh được giá trị của metadata.
+    kiem_tra(len([v for v in vai_tro if v in VAI_TRO_HOP_LE]) >= 2,
+             f"customer_role phải có ít nhất 2 giá trị khác nhau, đang chỉ có {sorted(vai_tro)}")
 
     csv_path = thu_muc / "sources.csv"
     if not csv_path.exists():
