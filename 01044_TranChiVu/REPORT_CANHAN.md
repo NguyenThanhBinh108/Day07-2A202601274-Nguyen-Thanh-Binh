@@ -151,20 +151,20 @@ collecting ... collected 42 items
 
 ## 5. Kết quả truy xuất của tôi (Competition Results) — Cá nhân (10 điểm)
 
-> Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân trong gói `src`. Dùng bộ tài liệu K4 khởi động (`data/k4_ecommerce`), chiến lược cá nhân **RecursiveChunker(chunk_size=200)**, embedder thật `intfloat/multilingual-e5-small`. Bộ câu hỏi chính thức nhóm thống nhất sẽ điền vào `REPORT_NHOM.md`; 5 câu dưới đây nằm trong phạm vi đó.
+> Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`). *(Phần này liên quan đến nhóm — sẽ điền sau khi nhóm thống nhất bộ câu hỏi đánh giá.)*
 
 | # | Câu hỏi (Query) | Top-1 Chunk truy xuất được (tóm tắt) | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt) |
 |---|-------|--------------------------------|-------|-----------|------------------------|
-| 1 | Người mua cần làm gì khi nhận hàng bị lỗi hoặc không đúng mô tả? | returns-policy chunk 3: "Người mua cần gửi yêu cầu đổi trả trong thời hạn nêu trên trang sản phẩm/chính sách sàn, kèm bằng chứng phù hợp khi hàng bị lỗi hoặc không đúng mô tả." | 0.9023 | ✅ | Gửi yêu cầu đổi trả trong thời hạn quy định, kèm bằng chứng phù hợp (lỗi/không đúng mô tả). |
-| 2 | Người bán có trách nhiệm gì khi đăng bán sản phẩm lên sàn? | seller-listing chunk 1: "Người bán chịu trách nhiệm cung cấp thông tin sản phẩm chính xác: giá, mô tả, tình trạng hàng; sản phẩm bị hạn chế/cấm không được đăng bán." | 0.8957 | ✅ | Chịu trách nhiệm cung cấp thông tin chính xác (giá, mô tả, tình trạng), không đăng sản phẩm cấm/hạn chế. |
-| 3 | Sản phẩm nào không được phép đăng bán? | seller-listing chunk 1: "...Sản phẩm bị hạn chế hoặc bị cấm không được phép đăng bán." | 0.8889 | ✅ | Sản phẩm bị hạn chế hoặc bị cấm không được phép đăng bán. |
-| 4 | Ai chịu trách nhiệm phản hồi yêu cầu đổi trả của người mua? | returns-policy chunk 3 (gửi yêu cầu + bằng chứng) — chunk 4 ở top-2 chứa nội dung "Người bán có trách nhiệm phản hồi theo quy trình của sàn." | 0.8981 | ✅ | Người bán có trách nhiệm phản hồi yêu cầu đổi trả theo quy trình của sàn (top-2). |
-| 5 | Thời hạn gửi yêu cầu đổi trả là bao lâu? | returns-policy chunk 3: "...trong thời hạn được nêu trên trang sản phẩm hoặc chính sách của sàn." | 0.8920 | ✅ | Không có con số cụ thể; thời hạn theo trang sản phẩm/chính sách sàn (agent nói rõ thông tin không chi tiết). |
+| 1 | | | | | |
+| 2 | | | | | |
+| 3 | | | | | |
+| 4 | | | | | |
+| 5 | | | | | |
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 5 / 5
+**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** __ / 5
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
-> So sánh cùng bộ tài liệu nhưng chiến lược khác nhau giúp thấy rõ ảnh hưởng của ranh giới chunk: chunk theo câu giữ ngữ cảnh dễ đọc cho chính sách ngắn, còn recursive chia vùng nhỏ hơn lại giữ được tính mạch lạc khi tài liệu dài. Nhóm khác dùng metadata filtering (`category`/`customer_role`) khiến top-1 luôn đúng người bán/người mua — bài học quan trọng: với chính sách có nhiều vai (buyer/seller), **embedding + metadata filter** hiệu quả hơn chỉ dựa vào vector.
+> *(Viết 2-3 câu sau khi xem demo của các nhóm khác.)*
 
 ---
 
@@ -176,5 +176,5 @@ collecting ... collected 42 items
 | Hướng tiếp cận của tôi (My Approach) | 9 / 10 |
 | Hoàn thiện code (Core Implementation — tests) | 30 / 30 |
 | Dự đoán độ tương tự (Similarity Predictions) | 4.5 / 5 |
-| Kết quả truy xuất của tôi (Competition Results) | 10 / 10 |
-| **Tổng phần cá nhân** | **58.5 / 60** |
+| Kết quả truy xuất của tôi (Competition Results) | _ / 10 (chờ bộ câu hỏi của nhóm) |
+| **Tổng phần cá nhân** | **__ / 60** |
