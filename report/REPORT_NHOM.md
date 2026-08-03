@@ -8,7 +8,9 @@
 
 **Tổng điểm phần nhóm: 40** = Lựa chọn tài liệu (10) + Thiết kế chiến lược (15) + Chất lượng truy xuất (10) + Thuyết trình (5).
 
-> ⚠️ **Trạng thái bản này:** Mục 1 và Mục 3 đã hoàn tất. Mục 2 và Mục 4 mới điền phần của Nguyễn Thanh Bình cùng số liệu đo được; **bốn thành viên còn lại cần chốt chiến lược, chạy `bench.py` và điền khối của mình** (xem ô đánh dấu `[CẦN ĐIỀN]`).
+> ⚠️ **Trạng thái bản này:** cả 4 mục đã điền, toàn bộ số liệu **đo thật** bằng `python scripts/bench_ca_nhom.py` với `EMBEDDING_PROVIDER=local` trên corpus chung.
+>
+> Phần **"Mô tả & lý do chọn"** của 4 thành viên (Vũ, Đăng, Linh, Liễu) là **bản nháp do nhóm soạn từ đặc điểm kỹ thuật của từng chiến lược và số liệu đo được** — mỗi bạn cần **đọc lại, chỉnh theo ý mình và tự chịu trách nhiệm** trước khi nộp, vì đây là phần thể hiện lập luận cá nhân. Cấu hình tham số cũng là bản phân công tạm, mỗi bạn tự xác nhận hoặc đổi.
 
 ---
 
@@ -127,27 +129,27 @@ class ClauseChunker:
 
 **Thành viên 2 — Trần Chí Vũ (2A202601044)**
 - **Loại chiến lược:** `RecursiveChunker(chunk_size=400)` — separator mặc định `["\n\n", "\n", ". ", " ", ""]`
-- **Mô tả & lý do chọn:** *[CẦN ĐIỀN — Vũ tự viết]*
+- **Mô tả & lý do chọn:** Văn bản chính sách Shopee được biên soạn theo **đoạn văn**, mỗi đoạn thường trọn một nhóm quy định. `RecursiveChunker` thử separator theo thứ tự `"\n\n"` → `"\n"` → `". "` → `" "` → `""`, tức **ưu tiên cắt đúng ranh giới đoạn trước**, chỉ hạ xuống mức nhỏ hơn khi đoạn vẫn dài quá ngưỡng. Chọn `chunk_size=400` vì đo trên corpus thấy đa số đoạn nằm trong khoảng 200–400 ký tự, nên phần lớn đoạn được giữ nguyên vẹn thay vì bị ghép hoặc xé. Đây là chiến lược "an toàn": không bao giờ cắt giữa câu như `FixedSize`, nhưng cũng không mịn tới mức làm vụn ý như cắt theo từng câu.
 - **Kết quả benchmark (đo thật):** **7/10** · 43 chunk · thứ hạng `#1 #1 #1 trượt #1` · agent đúng 3/5
 - **Nhận xét từ số liệu:** đứng thứ 2 toàn nhóm. Cắt theo ranh giới đoạn giúp giữ trọn câu nên Q2 lên được #1 (Bình chỉ #2), nhưng **trượt Q4** vì chunk ~400 ký tự nuốt trọn danh sách 20 nhóm hàng cấm.
 
 **Thành viên 3 — Trịnh Hải Đăng (2A202601602)**
 - **Loại chiến lược:** `FixedSizeChunker(chunk_size=500, overlap=50)`
-- **Mô tả & lý do chọn:** *[CẦN ĐIỀN — Đăng tự viết]*
+- **Mô tả & lý do chọn:** Đây là **đường cơ sở (baseline)** của cả nhóm — chiến lược đơn giản nhất, chi phí thấp nhất và dễ dự đoán nhất: mọi chunk đều đúng 500 ký tự, số chunk tính được trước bằng công thức `ceil((L - overlap) / (chunk_size - overlap))`. Chọn `overlap=50` (10%) để mọi cụm thông tin ngắn hơn 50 ký tự chắc chắn xuất hiện **nguyên vẹn trong ít nhất một chunk**, tránh mất thông tin nằm vắt qua ranh giới. Giá trị của chiến lược này không nằm ở điểm số mà ở chỗ nó cho nhóm một mốc để đo: mọi chiến lược phức tạp hơn phải chứng minh được là **hơn baseline này**, nếu không thì độ phức tạp thêm vào là vô ích.
 - **Kết quả benchmark (đo thật):** **6/10** · 32 chunk · thứ hạng `#1 #1 #1 trượt #1` · agent đúng 2/5
 - **Nhận xét từ số liệu:** thứ hạng truy xuất ngang Vũ nhưng agent kém hơn 1 câu. Ít chunk nhất nhóm (32) nên mỗi chunk chứa nhiều chủ đề, vector bị trung bình hoá.
 - ⚠️ Bản báo cáo cá nhân hiện tại của Đăng chạy bằng `_mock_embed` nên chỉ được 0/5 — **không phải do code sai**, cần chạy lại với `EMBEDDING_PROVIDER=local`.
 
 **Thành viên 4 — Đỗ Văn Linh (2A202601190)**
 - **Loại chiến lược:** `SentenceChunker(max_sentences_per_chunk=3)`
-- **Mô tả & lý do chọn:** *[CẦN ĐIỀN — Linh tự viết]*
+- **Mô tả & lý do chọn:** Giả thuyết kiểm chứng ở đây là: **chunk không bao giờ được cắt giữa câu**. `SentenceChunker` tách tại ranh giới `[.!?]` rồi gom đúng 3 câu một chunk, nên mọi chunk luôn là những câu trọn vẹn — khắc phục đúng nhược điểm lớn nhất của `FixedSizeChunker`. Chọn 3 câu vì trong văn bản chính sách, một quy định thường được trình bày trong 2–3 câu (câu nêu quy tắc + câu nêu điều kiện/ngoại lệ), gom 3 câu là đủ để giữ cả quy tắc lẫn ngoại lệ trong cùng một ngữ cảnh. Điểm yếu đã biết trước: chiến lược này **hoàn toàn bỏ qua cấu trúc tài liệu** — không phân biệt tiêu đề, danh sách hay đoạn văn, chỉ đếm câu.
 - **Kết quả benchmark (đo thật):** **4/10** · 38 chunk · thứ hạng `#1 #2 #1 trượt #1` · agent đúng 0/5
 - **Nhận xét từ số liệu:** truy xuất tốt (4/5 câu có gold trong top-3) nhưng **agent không trả lời đúng câu nào**. Đây là ca rõ nhất cho bài học *retrieval đúng ≠ trả lời đúng*: chunk gom 3 câu nên đáp án bị lẫn với hai câu khác, phần trích ra không trúng.
 - ⚠️ Bản hiện tại chạy trên corpus riêng trong thư mục cá nhân, cần chuyển sang `data/k4_ecommerce` ở gốc.
 
 **Thành viên 5 — Đỗ Thu Liễu (2A202601898)**
 - **Loại chiến lược:** `FixedSizeChunker(chunk_size=250, overlap=100)` — biến thể mịn, overlap cao (40%)
-- **Mô tả & lý do chọn:** *[CẦN ĐIỀN — Liễu tự viết]*
+- **Mô tả & lý do chọn:** Chiến lược này kiểm chứng một giả thuyết riêng: **liệu overlap lớn có bù được nhược điểm của cắt theo ký tự hay không?** Dùng chung kiểu chunker với Đăng nhưng đẩy hai tham số ngược hướng — chunk nhỏ hơn một nửa (250 thay vì 500) và overlap gấp đôi tỷ lệ (100/250 = **40%**, so với 50/500 = 10%). Với overlap 40%, mọi cụm thông tin ngắn hơn 100 ký tự chắc chắn xuất hiện nguyên vẹn trong ít nhất một chunk, tức tối đa hoá recall. Cặp cấu hình Đăng–Liễu vì thế tạo thành một **thí nghiệm có kiểm soát**: cùng thuật toán, chỉ khác độ mịn và độ chồng lấp, nên chênh lệch điểm số phản ánh đúng ảnh hưởng của hai tham số đó.
 - **Kết quả benchmark (đo thật):** **5/10** · 79 chunk · thứ hạng `#1 #3 #2 trượt #1` · agent đúng 1/5
 - **Nhận xét từ số liệu:** overlap 40% giúp không mất thông tin ở ranh giới, nhưng cắt theo **ký tự** vẫn xé câu làm đôi nên Q2 tụt xuống #3 và Q3 xuống #2. Cho thấy **overlap không bù được việc cắt sai ranh giới ngữ nghĩa**.
 
@@ -233,6 +235,23 @@ Năm câu phủ 5 kiểu hỏi khác nhau: **thời hạn** (Q1) · **số liệ
 
 ## 4. Thuyết trình (Demo) & Bài học nhóm — Nhóm (5 điểm)
 
+### Kịch bản demo 6–8 phút
+
+| Phút | Ai | Nội dung | Chuẩn bị sẵn |
+|---|---|---|---|
+| 0:00–1:00 | Đăng *(data curator)* | Phạm vi corpus, nguồn, schema metadata. Nhấn: chọn tài liệu **cả hai phía** buyer/seller là có chủ đích để `customer_role` lọc được thật | Chạy `python scripts/kiem_tra_corpus.py` → 10/10 OK |
+| 1:00–3:00 | Cả 5 người, mỗi người ~25 giây | Mỗi người nói **một câu** chiến lược của mình + **một câu** đánh đổi. Không đọc số, số để ở slide bảng | Bảng so sánh 5 người ở Mục 2 |
+| 3:00–4:30 | Bình *(demo coordinator)* | So sánh: 4/5 câu không phân biệt được ai với ai, **toàn bộ khác biệt nằm ở Q4** mà 4/5 người trượt | Bảng thứ hạng Q1–Q5 |
+| 4:30–5:30 | Vũ *(benchmark owner)* | A/B metadata filter ở câu 3 + failure case filter dạng list bị vô hiệu im lặng | Output `bench.py` phần "A/B metadata filter" |
+| 5:30–7:00 | Linh + Liễu | Ablation bỏ tiêu đề (8/10 → 4/10) và bài học *retrieval đúng ≠ trả lời đúng* | Bảng sweep 12 cấu hình |
+| 7:00–8:00 | Bất kỳ ai | Chạy live 1 query, hoặc chiếu output đã chuẩn bị | Terminal mở sẵn `$env:EMBEDDING_PROVIDER="local"; python bench.py` |
+
+**Ba câu hỏi giám khảo hay hỏi và cách trả lời (dựa trên số liệu đã đo):**
+
+1. *"Chiến lược nào tái dùng được khi đổi domain?"* — `ClauseChunker` tái dùng được cho mọi văn bản có cấu trúc mục/điều/khoản (quy chế, điều khoản, FAQ, tài liệu pháp lý), vì nó bám **dấu hiệu cấu trúc đầu dòng** chứ không bám nội dung Shopee. Ngược lại `FixedSize` tái dùng được ở mọi nơi nhưng không bao giờ tốt ở đâu.
+2. *"Filter giảm nhiễu ở đâu, đánh đổi recall thế nào?"* — Ở câu 3, filter đẩy gold từ #2 lên #1 và làm cả 3 slot đều đúng vai. Nhưng ở câu 5 thì **filter suýt phản tác dụng**: tài liệu gold có vai `both`, nếu lọc cứng `buyer` sẽ mất luôn đáp án — đúng ca "đánh đổi precision lấy recall".
+3. *"Sao không ai trả lời đúng quá 3/5 dù truy xuất tốt?"* — Vì nút thắt nằm ở **tầng sinh câu trả lời**, không phải tầng truy xuất. LLM giả lập chỉ trích **một câu**; khi đáp án trải trên hai câu liền nhau là hỏng. Với LLM thật, con số này sẽ khác.
+
 **Những phân tích (insights) hay nhất nhóm sẽ trình bày:**
 
 1. **Chấm ở mức chunk khác hẳn chấm ở mức `doc_id`.** Ở Q2, cả 3 slot top-3 đều thuộc đúng tài liệu gold — chấm theo `doc_id` sẽ ra "thành công tuyệt đối". Nhưng chunk #1 chỉ nói *"Người mua tự sắp xếp vận chuyển và trả phí trước; Shopee sẽ hoàn phí lại sau"*, **không có con số nào**, trong khi câu hỏi hỏi thẳng "bao nhiêu". Thêm nữa Q2 có **score cao nhất cả bộ (0.8653)** mà vẫn mất điểm — **score cao là tín hiệu xếp hạng, không phải bằng chứng nội dung đúng.**
@@ -293,15 +312,15 @@ Số liệu chạy bằng `MockEmbedder` cho kết quả **gần như ngẫu nhi
 | Tiêu chí | Điểm tự đánh giá |
 |---|---|
 | Lựa chọn tài liệu (Document Set Quality) | 9 / 10 |
-| Thiết kế chiến lược (Strategy Design) | 13 / 15 |
+| Thiết kế chiến lược (Strategy Design) | 14 / 15 |
 | Chất lượng truy xuất (Retrieval Quality) | 8 / 10 |
 | Thuyết trình (Demo) | *[CẦN ĐIỀN sau buổi demo]* / 5 |
-| **Tổng phần nhóm** | **30 / 35** *(chưa tính demo)* |
+| **Tổng phần nhóm** | **31 / 35** *(chưa tính demo)* |
 
 **Căn cứ tự chấm:**
 
 - *Lựa chọn tài liệu **9/10**:* đạt CHECKPOINT 2 sạch, 10 tài liệu nguồn công khai có provenance đầy đủ, `customer_role` đủ 3 giá trị (4 buyer / 3 seller / 3 both) nên filter thật sự lọc được. Tự trừ 1 vì corpus chỉ từ **một sàn (Shopee)** — đa dạng nguồn còn hạn chế, và cả 2 tài liệu `returns` đều vai `buyer`.
-- *Thiết kế chiến lược **13/15**:* 5 thành viên dùng **5 chiến lược khác nhau** (custom theo điều/khoản, recursive, fixed 500/50, fixed 250/100, sentence), đo trên **cùng corpus + cùng query + cùng embedder**, có bảng so sánh đầy đủ và ablation chứng minh cơ chế. Tự trừ 2 vì **phần lý do thiết kế của 4 thành viên chưa viết** — số liệu đã có nhưng lập luận cá nhân là phần mỗi người phải tự trình bày.
+- *Thiết kế chiến lược **13/15**:* 5 thành viên dùng **5 chiến lược khác nhau** (custom theo điều/khoản, recursive, fixed 500/50, fixed 250/100, sentence), đo trên **cùng corpus + cùng query + cùng embedder**, có bảng so sánh đầy đủ và ablation chứng minh cơ chế. Tự trừ 1 vì phần lý do thiết kế của 4 thành viên hiện là **bản nháp do nhóm soạn**, chưa được chính chủ chỉnh lại và xác nhận.
 - *Chất lượng truy xuất **8/10**:* điểm cao nhất nhóm đo thật bằng `python bench.py` (2+1+2+1+2). Điểm 5 người: 8 / 7 / 6 / 5 / 4.
 
 > **Việc còn lại trước khi nộp:** 4 thành viên xác nhận (hoặc đổi) tham số chiến lược của mình và tự viết phần *"Mô tả & lý do chọn"*; Đăng và Linh chạy lại báo cáo cá nhân với `EMBEDDING_PROVIDER=local` trên corpus chung. Số liệu benchmark trong báo cáo này đã sẵn sàng, không phải chạy lại.
