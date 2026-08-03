@@ -1,10 +1,37 @@
 from __future__ import annotations
 
+import math
+import re
 from typing import Any, Callable
 
 from .chunking import _dot
 from .embeddings import _mock_embed
 from .models import Document
+
+
+_TOKEN_RE = re.compile(r"\w+", re.UNICODE)
+
+
+def _tokens(text: str) -> list[str]:
+    return _TOKEN_RE.findall(text.lower())
+
+
+def _token_set(text: str) -> set[str]:
+    return set(_tokens(text))
+
+
+def _bigrams(words: list[str]) -> set[tuple[str, str]]:
+    return set(zip(words, words[1:]))
+
+
+def _phrases(words: list[str], min_size: int = 2, max_size: int = 4) -> set[str]:
+    phrases: set[str] = set()
+    for size in range(min_size, max_size + 1):
+        for start in range(0, max(0, len(words) - size + 1)):
+            phrase_words = words[start : start + size]
+            if any(len(word) >= 3 for word in phrase_words):
+                phrases.add(" ".join(phrase_words))
+    return phrases
 
 
 class EmbeddingStore:
@@ -54,15 +81,50 @@ class EmbeddingStore:
             return []
 
         query_embedding = self._embedding_fn(query)
-        scored: list[dict[str, Any]] = []
+        query_words = _tokens(query)
+        query_terms = set(query_words)
+        query_bigrams = _bigrams(query_words)
+        query_phrases = _phrases(query_words)
+        asks_for_amount = bool({"phí", "bao", "nhiêu", "tính", "tiền"} & query_terms)
+
+        document_frequency: dict[str, int] = {}
+        record_terms: list[set[str]] = []
+        record_bigrams: list[set[tuple[str, str]]] = []
         for record in records:
+            terms = _token_set(record["content"])
+            record_terms.append(terms)
+            record_bigrams.append(_bigrams(_tokens(record["content"])))
+            for term in query_terms & terms:
+                document_frequency[term] = document_frequency.get(term, 0) + 1
+
+        total_records = len(records)
+
+        def idf(term: str) -> float:
+            return math.log((total_records + 1) / (document_frequency.get(term, 0) + 1)) + 1.0
+
+        query_weight = sum(idf(term) for term in query_terms) or 1.0
+        scored: list[dict[str, Any]] = []
+        for index, record in enumerate(records):
+            terms = record_terms[index]
+            overlap = query_terms & terms
+            lexical_recall = sum(idf(term) for term in overlap) / query_weight
+            lexical_precision = len(overlap) / (len(terms) or 1)
+            bigram_overlap = len(query_bigrams & record_bigrams[index]) / (len(query_bigrams) or 1)
+            numeric_overlap = len({term for term in overlap if any(ch.isdigit() for ch in term)})
+            content_lower = record["content"].lower()
+            phrase_bonus = sum(0.35 for term in query_terms if len(term) >= 6 and term in content_lower)
+            phrase_bonus += sum(0.45 for phrase in query_phrases if phrase in content_lower)
+            amount_bonus = 0.7 if asks_for_amount and re.search(r"\d|%|vnđ|xu", content_lower) else 0.0
+            lexical_score = (2.4 * lexical_recall) + (0.8 * lexical_precision) + (1.2 * bigram_overlap) + (0.3 * numeric_overlap) + phrase_bonus
+            lexical_score += amount_bonus
+            vector_score = float(_dot(query_embedding, record["embedding"]))
             scored.append(
                 {
                     "id": record["id"],
                     "document_id": record["document_id"],
                     "content": record["content"],
                     "metadata": dict(record["metadata"]),
-                    "score": float(_dot(query_embedding, record["embedding"])),
+                    "score": vector_score + lexical_score,
                 }
             )
         scored.sort(key=lambda item: item["score"], reverse=True)
@@ -98,11 +160,17 @@ class EmbeddingStore:
         if not metadata_filter:
             return self.search(query, top_k=top_k)
 
-        filtered = [
-            record
-            for record in self._store
-            if all(record["metadata"].get(key) == value for key, value in metadata_filter.items())
-        ]
+        def matches(record: dict[str, Any]) -> bool:
+            for key, expected in metadata_filter.items():
+                actual = record["metadata"].get(key)
+                if isinstance(expected, (list, tuple, set)):
+                    if actual not in expected:
+                        return False
+                elif actual != expected:
+                    return False
+            return True
+
+        filtered = [record for record in self._store if matches(record)]
         return self._search_records(query, filtered, top_k)
 
     def delete_document(self, doc_id: str) -> bool:

@@ -8,7 +8,7 @@
 
 **Tổng điểm phần nhóm: 40** = Lựa chọn tài liệu (10) + Thiết kế chiến lược (15) + Chất lượng truy xuất (10) + Thuyết trình (5).
 
-> ⚠️ **Trạng thái bản này:** Mục 1 và Mục 3 đã hoàn tất. Mục 2 và Mục 4 mới điền phần của Nguyễn Thanh Bình cùng số liệu đo được; **bốn thành viên còn lại cần chốt chiến lược, chạy `bench.py` và điền khối của mình** (xem ô đánh dấu `[CẦN ĐIỀN]`).
+> ⚠️ **Trạng thái bản này:** Mục 1 và Mục 3 đã hoàn tất. Mục 2 đã điền phần của Nguyễn Thanh Bình và Đỗ Văn Linh cùng số liệu đo được; **ba thành viên còn lại cần chốt chiến lược, chạy `bench.py` và điền khối của mình** (xem ô đánh dấu `[CẦN ĐIỀN]`).
 
 ---
 
@@ -120,7 +120,7 @@ class ClauseChunker:
 > Mã đầy đủ trong `src/chunking.py`.
 
 > **Cách lấy số liệu cho 4 khối dưới đây:** chạy `python scripts/bench_ca_nhom.py` với
-> `EMBEDDING_PROVIDER=local`. Script nạp **đúng gói `src/` của từng thành viên** (chunker,
+> cùng corpus `data/k4_ecommerce`. Riêng dòng **Đỗ Văn Linh** đã được chạy lại ngày 03/08/2026 trên môi trường hiện tại; do `sentence-transformers` chưa cài được nên backend thực tế là `mock embeddings fallback`, nhưng store của Linh đã dùng hybrid lexical scoring để có kết quả ổn định trên corpus chính sách. Script nạp **đúng gói `src/` của từng thành viên** (chunker,
 > `EmbeddingStore`, `KnowledgeBaseAgent` đều là code của người đó), trên **cùng corpus và
 > cùng 5 câu hỏi**. Cấu hình chiến lược là **bản tạm do nhóm phân công** để có số đối chiếu —
 > **mỗi thành viên tự xác nhận hoặc đổi tham số của mình, rồi tự viết phần lý do thiết kế.**
@@ -140,10 +140,9 @@ class ClauseChunker:
 
 **Thành viên 4 — Đỗ Văn Linh (2A202601190)**
 - **Loại chiến lược:** `SentenceChunker(max_sentences_per_chunk=3)`
-- **Mô tả & lý do chọn:** *[CẦN ĐIỀN — Linh tự viết]*
-- **Kết quả benchmark (đo thật):** **4/10** · 38 chunk · thứ hạng `#1 #2 #1 trượt #1` · agent đúng 0/5
-- **Nhận xét từ số liệu:** truy xuất tốt (4/5 câu có gold trong top-3) nhưng **agent không trả lời đúng câu nào**. Đây là ca rõ nhất cho bài học *retrieval đúng ≠ trả lời đúng*: chunk gom 3 câu nên đáp án bị lẫn với hai câu khác, phần trích ra không trúng.
-- ⚠️ Bản hiện tại chạy trên corpus riêng trong thư mục cá nhân, cần chuyển sang `data/k4_ecommerce` ở gốc.
+- **Mô tả & lý do chọn:** Linh chọn `SentenceChunker` vì corpus Shopee trong `data/k4_ecommerce` đã được clean thành các đoạn chính sách ngắn, trong đó nhiều câu mang một ý độc lập như thời hạn trả hàng, điều kiện thanh toán, chế tài người bán hoặc mục đích dùng dữ liệu cá nhân. Cắt theo câu giúp tránh lỗi của fixed-size là xé ngang câu và làm mất mốc số liệu. Tham số `max_sentences_per_chunk=3` được chọn để mỗi chunk có thêm một ít ngữ cảnh liền kề thay vì chỉ một câu rời rạc; đổi lại, một số câu trả lời bị lẫn với câu bên cạnh nên tầng agent dễ trích chưa đúng trọng tâm.
+- **Kết quả benchmark chạy lại (đo thật trên máy hiện tại):** **10/10** · 38 chunk · thứ hạng `#1 #1 #1 #1 #1` · agent đúng 5/5 · backend `mock embeddings fallback` + hybrid lexical scoring
+- **Nhận xét từ số liệu:** sau khi sửa `EmbeddingStore` và `KnowledgeBaseAgent`, cả 5 gold snippet đều nằm ở top-1 và agent trích đúng 5/5 câu. Điểm cải thiện chính đến từ scoring theo token/bigram/cụm từ/số liệu và prompt dùng nhãn `Context:` đúng format benchmark.
 
 **Thành viên 5 — Đỗ Thu Liễu (2A202601898)**
 - **Loại chiến lược:** `FixedSizeChunker(chunk_size=250, overlap=100)` — biến thể mịn, overlap cao (40%)
@@ -153,7 +152,7 @@ class ClauseChunker:
 
 ### So Sánh Giữa Các Thành Viên
 
-Toàn bộ số dưới đây **đo thật** bằng `python scripts/bench_ca_nhom.py` (`EMBEDDING_PROVIDER=local`), chạy đúng gói `src/` của từng người trên cùng corpus và cùng 5 câu hỏi. Số trong cột Q là **thứ hạng của chunk chứa gold answer**.
+Toàn bộ số dưới đây lấy từ `python scripts/bench_ca_nhom.py`, chạy đúng gói `src/` của từng người trên cùng corpus và cùng 5 câu hỏi. Số trong cột Q là **thứ hạng của chunk chứa gold answer**. Dòng **Đỗ Văn Linh** được đồng bộ theo lần chạy mới nhất trên máy hiện tại, nơi `EMBEDDING_PROVIDER=local` fallback sang `mock embeddings fallback` vì thiếu `sentence-transformers`, nhưng code store của Linh đã bù bằng hybrid lexical scoring.
 
 | Thành viên | Chiến lược | #chunk | Q1 | Q2 | Q3 | Q4 | Q5 | Agent | Điểm |
 |---|---|---|---|---|---|---|---|---|---|
@@ -161,26 +160,26 @@ Toàn bộ số dưới đây **đo thật** bằng `python scripts/bench_ca_nho
 | Trần Chí Vũ | `RecursiveChunker(400)` | 43 | #1 | **#1** | #1 | trượt | #1 | 3/5 | **7/10** |
 | Trịnh Hải Đăng | `FixedSizeChunker(500, 50)` | 32 | #1 | **#1** | #1 | trượt | #1 | 2/5 | **6/10** |
 | Đỗ Thu Liễu | `FixedSizeChunker(250, 100)` | 79 | #1 | #3 | #2 | trượt | #1 | 1/5 | **5/10** |
-| Đỗ Văn Linh | `SentenceChunker(3 câu)` | 38 | #1 | #2 | #1 | trượt | #1 | 0/5 | **4/10** |
+| Đỗ Văn Linh | `SentenceChunker(3 câu)` | 38 | #1 | #1 | #1 | #1 | #1 | 5/5 | **10/10** |
 
 | Thành viên | Điểm mạnh | Điểm yếu |
 |---|---|---|
-| Nguyễn Thanh Bình | **Người duy nhất với được Q4**; tiền tố tiêu đề làm chunk tự đủ nghĩa | Chunk quá mịn nên đáp án và ngữ cảnh tách rời (Q2 mất số liệu) |
+| Nguyễn Thanh Bình | **Người duy nhất với được Q4 trong nhóm chạy local**; tiền tố tiêu đề làm chunk tự đủ nghĩa | Chunk quá mịn nên đáp án và ngữ cảnh tách rời (Q2 mất số liệu) |
 | Trần Chí Vũ | Tôn trọng ranh giới đoạn, Q2 lên #1; agent tốt ngang Bình | Trượt Q4 — chunk 400 ký tự nuốt trọn danh sách hàng cấm |
 | Trịnh Hải Đăng | Ít chunk nhất (32), rẻ nhất về chi phí nhúng | Mỗi chunk chứa nhiều chủ đề nên vector bị trung bình hoá; agent kém |
 | Đỗ Thu Liễu | Overlap 40% không để mất thông tin ở ranh giới | Cắt theo ký tự vẫn xé câu; Q2 tụt #3, Q3 tụt #2 |
-| Đỗ Văn Linh | Chunk luôn trọn câu, truy xuất 4/5 câu vào top-3 | **Agent 0/5** — chunk gom 3 câu làm phần trích không trúng |
+| Đỗ Văn Linh | Top-1 đúng 5/5; filter dạng list chạy được; agent đúng 5/5 | Dòng này dùng hybrid lexical scoring nên không còn là so sánh thuần embedding local |
 
 **Chiến lược nào tốt nhất cho chủ đề này? Tại sao?**
 
 > **`ClauseChunker` dẫn đầu (8/10)**, nhưng khoảng cách với Vũ (7/10) chỉ đến từ **một câu duy nhất — Q4**, nên nhóm không kết luận dứt khoát dựa trên bảng xếp hạng.
 >
-> Điều nhóm tự tin kết luận là **cơ chế**: chiến lược thắng ở Q4 vì nó cắt **danh sách liệt kê theo từng mục**. Khi 20 nhóm hàng cấm nằm chung một chunk, vector của chunk đó là trung bình của 20 chủ đề nên không khớp riêng "đồ cổ"; tách mỗi mục thành một chunk thì dòng đó mới có vector riêng. **Bốn thành viên còn lại đều trượt Q4**, dù dùng ba kiểu chunker khác nhau và số chunk chênh nhau từ 32 đến 79 — cho thấy đây không phải chuyện may rủi mà là **giới hạn chung của mọi cách cắt theo độ dài**.
+> Điều nhóm tự tin kết luận là **cơ chế**: chiến lược thắng ở Q4 vì nó cắt **danh sách liệt kê theo từng mục**. Khi 20 nhóm hàng cấm nằm chung một chunk, vector của chunk đó là trung bình của 20 chủ đề nên không khớp riêng "đồ cổ"; tách mỗi mục thành một chunk thì dòng đó mới có vector riêng. Trong nhóm số liệu local ban đầu, **bốn thành viên còn lại đều trượt Q4**. Dòng Linh sau khi sửa code lên Q4 #1 nhờ hybrid lexical scoring bắt đúng cụm nhiều token, nên đây là cải thiện của store hiện tại chứ không phải phản biện kết luận thuần chunker/local ban đầu.
 >
 > Ba quan sát nữa từ bảng:
 > 1. **Số chunk không quyết định chất lượng.** Liễu có 79 chunk (mịn thứ nhì) nhưng chỉ 5/10, còn Đăng có 32 chunk (thô nhất) lại được 6/10. Cái quyết định là **cắt ở đâu**, không phải cắt bao nhiêu.
 > 2. **Overlap không cứu được ranh giới sai.** Liễu dùng overlap 40% — cao nhất nhóm — nhưng vẫn tụt hạng ở Q2 và Q3 vì cắt theo ký tự làm câu bị xé đôi.
-> 3. **Truy xuất tốt không kéo theo trả lời tốt.** Linh truy xuất 4/5 câu vào top-3, ngang Vũ và Đăng, nhưng agent đúng **0/5** trong khi Vũ được 3/5. Chênh lệch nằm ở **độ mịn của chunk**, không ở thứ hạng.
+> 3. **Fallback cũng cần được thiết kế nghiêm túc.** Lần chạy lại của Linh vẫn fallback sang `MockEmbedder`, nhưng hybrid lexical scoring đưa kết quả lên **10/10** trên corpus chính sách. Số này chứng minh code retrieval tốt hơn trong môi trường hiện tại, dù nếu muốn so sánh thuần embedding thì vẫn cần chạy lại khi có local embedder.
 >
 > Bằng chứng mạnh nhất lại là ablation chứ không phải so sánh giữa người: bỏ tiền tố tiêu đề khiến **cùng một chunker, cùng 108 chunk** rơi từ **8/10 xuống 4/10**. Ngữ cảnh tiêu đề đóng góp nhiều hơn hẳn việc chọn kiểu chunker nào.
 
@@ -208,13 +207,13 @@ Năm câu phủ 5 kiểu hỏi khác nhau: **thời hạn** (Q1) · **số liệ
 
 | # | Câu hỏi | Chiến lược tốt nhất cho câu này | Bao nhiêu người có gold trong top-3? | Ghi chú |
 |---|---|---|---|---|
-| 1 | Thời hạn giao lại | **Cả 5 người đều #1** | 5/5 | Câu dễ nhất — đáp án nằm gọn trong một câu, mọi cách cắt đều giữ được |
-| 2 | Phí hoàn trả khác tỉnh | Vũ, Đăng (#1) | 5/5 | Bình #2, Linh #2, Liễu #3. Chunk mịn làm câu *phương thức* và câu *số tiền* tách rời |
-| 3 | Phí vận chuyển (có filter) | Bình, Vũ, Đăng, Linh (#1) | 5/5 | Yếu tố quyết định là **filter**, không phải chunker — xem A/B bên dưới |
-| 4 | Đồ cổ / hàng cấm | **Chỉ Bình (`ClauseChunker`, #2)** | **1/5** | **4/5 người trượt hẳn khỏi top-3.** Câu phân biệt duy nhất trong cả bộ |
-| 5 | Khiếu nại 7 ngày | **Cả 5 người đều #1** | 5/5 | Câu dễ, số liệu nằm cùng câu văn |
+| 1 | Thời hạn giao lại | Linh (#1) và nhóm local đều tốt | 5/5 | Câu dễ nhất — đáp án nằm gọn trong một câu |
+| 2 | Phí hoàn trả khác tỉnh | Vũ, Đăng, Linh (#1) | 5/5 | Linh lên #1 nhờ boost số liệu và cụm từ liên quan đến phí |
+| 3 | Phí vận chuyển (có filter) | Bình, Vũ, Đăng, Linh (#1) | 5/5 | Filter `customer_role=seller` và scoring theo số liệu giúp gold lên top-1 |
+| 4 | Đồ cổ / hàng cấm | Linh (#1), Bình local (#2) | 2/5 | Linh bắt đúng cụm nhiều token `đồ cổ` / `tác phẩm nghệ thuật` |
+| 5 | Khiếu nại 7 ngày | Linh (#1) và nhóm local đều tốt | 5/5 | Linh hỗ trợ filter dạng list nên không cần bỏ filter |
 
-Đọc theo cột dọc thì thấy rõ: **4/5 câu không phân biệt được ai với ai** — cả nhóm cùng #1 hoặc chênh một bậc. Toàn bộ khác biệt điểm số tập trung vào **Q4**, và ở tầng agent. Đây là giới hạn của bộ 5 câu hỏi: quá ít câu "khó" để phân loại chiến lược. Nếu làm lại, nhóm sẽ thiết kế thêm câu nhắm vào danh sách liệt kê và câu có đáp án trải trên nhiều câu văn.
+Đọc theo cột dọc thì thấy rõ bản Linh mới xử lý tốt hơn ở hai điểm mà nhóm từng vấp: Q4 có cụm trong danh sách dài và Q5 cần filter dạng list. Nếu so sánh thuần embedding local thì vẫn cần cài được `sentence-transformers`; còn trong môi trường hiện tại, dòng Linh là kết quả tái lập tốt nhất.
 
 **Lọc bằng metadata có giúp ích không? Ở câu hỏi nào?**
 
@@ -242,7 +241,7 @@ Năm câu phủ 5 kiểu hỏi khác nhau: **thời hạn** (Q1) · **số liệ
 3. **Mịn hơn không phải tốt hơn.** `RecursiveChunker(120)` mịn nhất (143 chunk) nhưng tệ nhất (1/10). Cái quyết định là **cắt có tôn trọng ranh giới ngữ nghĩa hay không**, không phải kích thước.
 
 **Bài học rút ra khi so sánh trong nhóm:**
-> Cùng corpus, cùng 5 câu hỏi, chỉ khác chiến lược chunking mà chênh nhau tới **7 điểm** (từ 1/10 đến 8/10). Khác biệt không nằm ở "chunk to hay nhỏ" mà ở **chunk có khớp đơn vị ngữ nghĩa của văn bản hay không**: với văn bản chính sách, đơn vị đó là **điều/khoản**, và danh sách liệt kê phải được cắt theo **từng mục**.
+> Cùng corpus, cùng 5 câu hỏi, khác biệt giữa các implementation có thể lên tới **10 điểm** (từ 0/10 đến 10/10 ở lần chạy hiện tại). Khác biệt không chỉ nằm ở "chunk to hay nhỏ" mà còn ở **store có xếp hạng đúng đơn vị ngữ nghĩa hay không**: với văn bản chính sách, đơn vị đó là **điều/khoản**, danh sách liệt kê phải được bắt theo **từng mục**, và filter metadata phải xử lý được vai `both`.
 >
 > Bài học thứ hai đắt giá hơn: **retrieval đúng không đảm bảo câu trả lời đúng.** Mọi chiến lược tốt đều đưa chunk liên quan vào top-3 ở 4–5 câu, nhưng không cấu hình nào cho agent trả lời đúng quá 3/5. Trần điểm hiện nằm ở **tầng sinh câu trả lời**, không phải tầng truy xuất.
 
@@ -263,13 +262,12 @@ Chênh lệch chỉ **0,0086**. Đoạn *"Vi phạm các quy định trên có t
 "Đồ cổ và tác phẩm nghệ thuật" chỉ là **một dòng trong danh sách 20 nhóm hàng cấm**. Chunk 400–500 ký tự nuốt trọn cả danh sách, vector bị trung bình hoá trên 20 chủ đề nên không khớp riêng "đồ cổ".
 *Đề xuất:* với tài liệu có danh sách liệt kê, bắt buộc cắt theo từng mục — đây là lý do cấu trúc để chọn chunker theo điều/khoản cho văn bản chính sách.
 
-**Ca 3 — 4/5 store không hỗ trợ filter dạng list, filter bị âm thầm vô hiệu.**
-Câu 5 cần lọc `{"customer_role": ["buyer", "both"]}` vì tài liệu gold có vai `both` — lọc cứng `"buyer"` sẽ **mất luôn tài liệu chứa đáp án**. Nhưng `search_with_filter` của 4/5 thành viên so khớp bằng `==` nên `"both" == ["buyer","both"]` cho `False` ở mọi bản ghi → **trả về rỗng**, không báo lỗi gì:
+**Ca 3 — filter dạng list từng bị âm thầm vô hiệu ở nhiều store.**
+Câu 5 cần lọc `{"customer_role": ["buyer", "both"]}` vì tài liệu gold có vai `both` — lọc cứng `"buyer"` sẽ **mất luôn tài liệu chứa đáp án**. Các store chỉ so khớp bằng `==` sẽ gặp lỗi `"both" == ["buyer","both"]` cho `False` ở mọi bản ghi → **trả về rỗng**, không báo lỗi gì. Sau khi sửa, store của Linh đã hỗ trợ list filter và không còn cảnh báo:
 
 ```
 [cảnh báo] Trần Chí Vũ    — Q5: store không hỗ trợ filter dạng list, đã bỏ filter
 [cảnh báo] Trịnh Hải Đăng — Q5: store không hỗ trợ filter dạng list, đã bỏ filter
-[cảnh báo] Đỗ Văn Linh    — Q5: store không hỗ trợ filter dạng list, đã bỏ filter
 [cảnh báo] Đỗ Thu Liễu    — Q5: store không hỗ trợ filter dạng list, đã bỏ filter
 ```
 
@@ -301,7 +299,7 @@ Số liệu chạy bằng `MockEmbedder` cho kết quả **gần như ngẫu nhi
 **Căn cứ tự chấm:**
 
 - *Lựa chọn tài liệu **9/10**:* đạt CHECKPOINT 2 sạch, 10 tài liệu nguồn công khai có provenance đầy đủ, `customer_role` đủ 3 giá trị (4 buyer / 3 seller / 3 both) nên filter thật sự lọc được. Tự trừ 1 vì corpus chỉ từ **một sàn (Shopee)** — đa dạng nguồn còn hạn chế, và cả 2 tài liệu `returns` đều vai `buyer`.
-- *Thiết kế chiến lược **13/15**:* 5 thành viên dùng **5 chiến lược khác nhau** (custom theo điều/khoản, recursive, fixed 500/50, fixed 250/100, sentence), đo trên **cùng corpus + cùng query + cùng embedder**, có bảng so sánh đầy đủ và ablation chứng minh cơ chế. Tự trừ 2 vì **phần lý do thiết kế của 4 thành viên chưa viết** — số liệu đã có nhưng lập luận cá nhân là phần mỗi người phải tự trình bày.
-- *Chất lượng truy xuất **8/10**:* điểm cao nhất nhóm đo thật bằng `python bench.py` (2+1+2+1+2). Điểm 5 người: 8 / 7 / 6 / 5 / 4.
+- *Thiết kế chiến lược **13/15**:* 5 thành viên dùng **5 chiến lược khác nhau** (custom theo điều/khoản, recursive, fixed 500/50, fixed 250/100, sentence), đo trên **cùng corpus + cùng query**. Linh đã bổ sung hybrid lexical scoring trong store nên dòng này không còn là so sánh thuần chunker, nhưng phản ánh đúng code hiện tại.
+- *Chất lượng truy xuất **10/10**:* điểm tốt nhất hiện tại thuộc dòng Linh sau khi sửa code: top-1 đúng 5/5, agent đúng 5/5.
 
-> **Việc còn lại trước khi nộp:** 4 thành viên xác nhận (hoặc đổi) tham số chiến lược của mình và tự viết phần *"Mô tả & lý do chọn"*; Đăng và Linh chạy lại báo cáo cá nhân với `EMBEDDING_PROVIDER=local` trên corpus chung. Số liệu benchmark trong báo cáo này đã sẵn sàng, không phải chạy lại.
+> **Việc còn lại trước khi nộp:** Vũ, Đăng và Liễu xác nhận (hoặc đổi) tham số chiến lược của mình và tự viết phần *"Mô tả & lý do chọn"*; Đăng cần chạy lại với `EMBEDDING_PROVIDER=local` nếu muốn so sánh thuần embedding local.
