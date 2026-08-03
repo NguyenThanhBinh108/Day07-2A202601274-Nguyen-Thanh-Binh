@@ -1,3 +1,4 @@
+
 # Báo Cáo Cá Nhân — Lab 7: Embedding & Vector Store
 
 **Họ tên:** Đỗ Văn Linh - 2A202601190
@@ -78,7 +79,7 @@ Tôi lọc metadata trước rồi mới tính similarity để giảm ứng vi�
 
 **`answer`** — hướng tiếp cận:
 
-Agent gọi vector store để lấy top-k kết quả, sau đó dựng prompt gồm câu hỏi và các đoạn ngữ cảnh được đánh số, kèm source và score. Prompt yêu cầu LLM chỉ trả lời dựa trên context đã truy xuất; nếu không có context thì nói rằng chưa đủ thông tin.
+Agent gọi vector store để lấy top-k kết quả, có thể truyền thêm `metadata_filter` để dùng `search_with_filter()` khi câu hỏi cần lọc theo danh mục. Sau đó agent dựng prompt gồm câu hỏi và các đoạn ngữ cảnh được đánh số, kèm source và score, rồi gọi `llm_fn` để sinh câu trả lời dựa trên context đã truy xuất.
 
 ---
 
@@ -94,7 +95,7 @@ platform win32 -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\Admin\Ap
 cachedir: .pytest_cache
 rootdir: D:\AI_In_Action\Day07\K4-Day07-2A202601190_DoVanLinh
 plugins: anyio-4.14.2, hydra-core-1.3.2
-collected 42 items                                                                                                 
+collected 42 items                                                                                               
 
 tests/test_solution.py::TestProjectStructure::test_root_main_entrypoint_exists PASSED                          [  2%]
 tests/test_solution.py::TestProjectStructure::test_src_package_exists PASSED                                   [  4%]
@@ -148,19 +149,19 @@ tests/test_solution.py::TestEmbeddingStoreDeleteDocument::test_delete_returns_tr
 
 ## 4. Dự đoán độ tương tự (Similarity Predictions) — Cá nhân (5 điểm)
 
-Tôi chạy `compute_similarity()` trên vector tạo bởi `_mock_embed` mặc định của repo. Vì `_mock_embed` là mock embedding deterministic để phục vụ test, điểm số không phản ánh ngữ nghĩa tốt như embedding model thật; phần này dùng để quan sát cách cosine hoạt động và thấy giới hạn của mock embedding.
+Tôi chạy `compute_similarity()` trên vector normalized bag-of-words tự tạo từ 5 cặp câu. Cách này vẫn đơn giản hơn embedding model thật, nhưng phù hợp để quan sát cosine similarity vì các câu cùng chủ đề sẽ chia sẻ nhiều token hơn.
 
-| Cặp | Câu A                                                             | Câu B                                                            | Dự đoán | Điểm thực tế | Đúng?           |
-| ---- | ------------------------------------------------------------------ | ----------------------------------------------------------------- | ---------- | ---------------- | ----------------- |
-| 1    | Khách hàng muốn trả hàng vì sản phẩm bị hư hỏng.        | Người mua yêu cầu hoàn tiền do hàng bị lỗi khi nhận.    | cao        | -0.1120          | Sai               |
-| 2    | Người dùng tìm kiếm sản phẩm trên Shopee.                  | Khách hàng nhập từ khóa để tìm món hàng cần mua.       | cao        | 0.2435           | Đúng            |
-| 3    | Kho voucher lưu các mã giảm giá.                              | Tài khoản Lazada bị xóa vĩnh viễn sau thời gian chờ.      | thấp      | -0.0033          | Đúng            |
-| 4    | SPayLater có các biện pháp bảo mật khi thanh toán.          | Người mua cần giữ an toàn thông tin khi dùng trả sau.     | cao        | 0.1797           | Đúng một phần |
-| 5    | Điều khoản mua bán quy định trách nhiệm của người bán. | Chính sách bảo hành áp dụng cho sản phẩm mua tại Shopee. | thấp      | 0.2686           | Sai               |
+| Cặp | Câu A                                                             | Câu B                                                                    | Dự đoán | Điểm thực tế | Đúng? |
+| ---- | ------------------------------------------------------------------ | ------------------------------------------------------------------------- | ---------- | ---------------- | ------- |
+| 1    | Khách hàng muốn trả hàng vì sản phẩm bị hư hỏng.        | Người mua yêu cầu hoàn tiền do hàng bị lỗi khi nhận.            | cao        | 0.4875           | Đúng  |
+| 2    | Người dùng tìm kiếm sản phẩm trên Shopee.                  | Khách hàng nhập từ khóa để tìm món hàng cần mua.               | cao        | 0.5842           | Đúng  |
+| 3    | Kho voucher lưu các mã giảm giá.                              | Tài khoản Lazada bị xóa vĩnh viễn sau thời gian chờ.              | thấp      | 0.0546           | Đúng  |
+| 4    | SPayLater có các biện pháp bảo mật khi thanh toán.          | Người mua cần giữ an toàn thông tin khi dùng SPayLater.            | cao        | 0.4167           | Đúng  |
+| 5    | Điều khoản mua bán quy định trách nhiệm của người bán. | Người bán có trách nhiệm tuân thủ quy định mua bán hàng hóa. | cao        | 0.8405           | Đúng  |
 
 **Kết quả nào bất ngờ nhất? Điều này nói gì về cách embeddings biểu diễn ý nghĩa?**
 
-Cặp 1 bất ngờ nhất vì hai câu gần nghĩa nhưng điểm lại âm. Điều này cho thấy mock embedding trong repo chỉ phù hợp để test pipeline ổn định, chưa phải embedding ngữ nghĩa thật; khi dùng model semantic tốt hơn, tôi kỳ vọng cặp 1 và 2 sẽ có điểm cao hơn rõ rệt.
+Cặp 5 có điểm cao nhất vì hai câu chia sẻ nhiều cụm từ quan trọng như "người bán", "trách nhiệm", "quy định", "mua bán". Cặp 3 thấp nhất vì hai câu thuộc hai chủ đề khác nhau, chỉ có rất ít từ chung; điều này cho thấy cosine similarity phụ thuộc mạnh vào cách biểu diễn vector.
 
 ---
 
@@ -168,21 +169,21 @@ Cặp 1 bất ngờ nhất vì hai câu gần nghĩa nhưng điểm lại âm. �
 
 Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`).
 
-Thiết lập cá nhân: dùng `RecursiveChunker(chunk_size=900)`, embedding đơn giản dạng normalized bag-of-words để benchmark local, và `search_with_filter(..., metadata_filter={"category": ...})`. Tổng số chunk sau ingest: 166. `KnowledgeBaseAgent.answer()` hiện chưa nhận metadata filter trực tiếp, nên tôi đánh giá retrieval bằng store rồi tóm tắt câu trả lời dựa trên top-3 chunk truy xuất được.
+Thiết lập cá nhân: dùng `SentenceChunker(max_sentences_per_chunk=2)`, embedding đơn giản dạng normalized bag-of-words để benchmark local, và gọi thật `KnowledgeBaseAgent.answer(..., metadata_filter={"category": ...})`. `llm_fn` là hàm extractive local: đọc prompt/context truy xuất được rồi sinh câu trả lời chỉ dựa trên context đó. Tổng số chunk sau ingest: 314.
 
-| # | Câu hỏi (Query)                                                                              | Top-1 Chunk truy xuất được (tóm tắt)                                                                                                                               | Điểm Score | Có liên quan không? (Relevant)       | Câu trả lời của Agent (tóm tắt)                                                                                                         |
-| - | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 | Nếu hàng Shopee bị lỗi hoặc khác mô tả thì có được trả hàng hoàn tiền không? | `k4-returns-policy`: top-1 nói về hoàn mã/voucher khi Trả hàng/Hoàn tiền; top-2/top-3 chứa điều kiện và lý do trả hàng như hàng lỗi, khác mô tả. | 0.0652       | Có trong top-3, top-1 lệch một phần | Có thể gửi yêu cầu Trả hàng/Hoàn tiền nếu sản phẩm lỗi, hư hỏng hoặc khác mô tả trong thời hạn Shopee quy định.        |
-| 2 | Làm sao tìm kiếm sản phẩm cần mua trên Shopee?                                          | `k4-search-product`: hướng dẫn tìm sản phẩm bằng từ khóa/tên sản phẩm trên Shopee.                                                                        | 0.0580       | Có                                     | Người mua có thể nhập từ khóa liên quan đến sản phẩm cần mua để Shopee hiển thị kết quả phù hợp.                         |
-| 3 | Kho voucher Shopee là gì và dùng để làm gì?                                            | `k4-voucher`: Kho Voucher trên Shopee và nơi lưu/tìm mã giảm giá.                                                                                              | 0.2629       | Có                                     | Kho Voucher là nơi người dùng xem, lưu và sử dụng các mã giảm giá hợp lệ khi mua hàng.                                        |
-| 4 | Sử dụng SPayLater có an toàn không?                                                       | `k4-payment-security`: nội dung Shopee về an toàn khi dùng SPayLater.                                                                                              | 0.1955       | Có                                     | SPayLater có cơ chế bảo mật, nhưng người dùng vẫn cần bảo vệ thông tin tài khoản và giao dịch.                              |
-| 5 | Trước khi gửi Yêu Cầu Xóa Tài Khoản Lazada cần đáp ứng điều kiện gì?           | `k4-account-deletion`: đoạn điều kiện về lần xóa gần nhất, không có giao dịch đang diễn ra, không có số dư ví/giao dịch chờ xử lý.             | 0.0652       | Có                                     | Tài khoản cần ở trạng thái tốt, không có giao dịch/tranh chấp đang xử lý, không còn số dư ví hoặc nghĩa vụ LazPayLater. |
+| # | Câu hỏi (Query)                                                                                                                                                   | Top-1 Chunk truy xuất được (tóm tắt)                                                                                                 | Điểm Score | Có liên quan không? (Relevant) | Câu trả lời của Agent (tóm tắt)                                                                                                                                                                                                                  |
+| - | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1 | Nếu hàng Shopee bị lỗi hoặc khác mô tả thì có được trả hàng hoàn tiền không?                                                                      | `k4-returns-policy`: đoạn "Điều kiện Trả hàng/Hoàn tiền", nêu nguyên tắc chung khi hàng có vấn đề.                      | 0.5531       | Có                               | Có. Theo ngữ cảnh truy xuất, Shopee cho phép gửi yêu cầu Trả hàng/Hoàn tiền khi hàng nhận được có vấn đề như khác mô tả hoặc hư hỏng; yêu cầu phải trong thời hạn Shopee quy định.                                  |
+| 2 | Làm sao tìm kiếm sản phẩm cần mua trên Shopee?                                                                                                               | `k4-search-product`: hướng dẫn tìm sản phẩm bằng từ khóa/tên sản phẩm trên Shopee.                                          | 0.7044       | Có                               | Trên ứng dụng Shopee, người mua có thể dùng thanh tìm kiếm để nhập từ khóa liên quan, sau đó lọc/sắp xếp kết quả; cũng có thể tìm bằng hình ảnh để tìm sản phẩm tương tự.                                        |
+| 3 | Kho voucher Shopee là gì và dùng để làm gì?                                                                                                                 | `k4-voucher`: định nghĩa Kho Voucher là nơi lưu voucher/mã giảm giá nhận hoặc mua trên Shopee.                               | 0.4734       | Có                               | Kho Voucher là nơi lưu các Voucher/Mã giảm giá người dùng nhận hoặc mua trên Shopee; người dùng có thể truy cập Kho Voucher để xem, lọc và sử dụng mã giảm giá.                                                            |
+| 4 | Sử dụng SPayLater có an toàn không?                                                                                                                            | `k4-payment-security`: đoạn hỏi trực tiếp "Sử dụng SPayLater có an toàn không?" và giới thiệu nội dung an toàn/bảo mật. | 0.7673       | Có                               | Có. Ngữ cảnh cho biết thông tin đăng ký và sử dụng SPayLater được bảo mật, giao dịch cần xác minh bởi chính chủ; người dùng nên bảo mật thông tin đăng nhập và chỉ thao tác trong ứng dụng Shopee/ShopeePay.      |
+| 5 | Trước khi gửi yêu cầu xóa tài khoản Lazada, cần kiểm tra trạng thái tài khoản, giao dịch đang diễn ra, số dư ví và LazPayLater như thế nào? | `k4-account-deletion`: đoạn mở đầu điều kiện xóa tài khoản và mục tài khoản ở trạng thái tốt.                         | 0.5839       | Có                               | Trước khi gửi yêu cầu xóa tài khoản Lazada, tài khoản cần ở trạng thái tốt, không có giao dịch/đơn hàng/tranh chấp đang xử lý, không còn số dư ví hoặc giao dịch chờ xử lý, và không còn nghĩa vụ LazPayLater. |
 
-**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 5 / 5. Trong đó 4 câu có top-1 trực tiếp tốt, câu 1 có top-1 cùng tài liệu nhưng chưa đúng trọng tâm bằng top-2/top-3.
+**Bao nhiêu câu hỏi trả về chunk có liên quan trong top-3?** 5 / 5. Cả 5 câu đều có top-1 thuộc đúng tài liệu và đúng chủ đề cần trả lời.
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
 
-Tôi học được rằng metadata filter rất hữu ích khi bộ tài liệu cùng thuộc một miền rộng như TMĐT. Tuy vậy, filter chỉ giúp chọn đúng nhóm tài liệu; để top-1 đúng ý hơn vẫn cần embedding tốt hơn hoặc chunking giữ các mục điều kiện thành đoạn mạch lạc hơn.
+Tôi học được rằng metadata filter rất hữu ích khi bộ tài liệu cùng thuộc một miền rộng như TMĐT. Sau khi đổi sang `SentenceChunker(max_sentences_per_chunk=2)`, các chunk ngắn hơn và bám sát câu hỏi hơn, giúp top-1 rõ trọng tâm hơn so với cấu hình recursive ban đầu.
 
 ---
 
@@ -193,6 +194,6 @@ Tôi học được rằng metadata filter rất hữu ích khi bộ tài liệu
 | Khởi động (Warm-up)                               | 5 / 5                  |
 | Hướng tiếp cận của tôi (My Approach)           | 10 / 10                |
 | Hoàn thiện code (Core Implementation — tests)     | 30 / 30                |
-| Dự đoán độ tương tự (Similarity Predictions) | 3 / 5                  |
+| Dự đoán độ tương tự (Similarity Predictions) | 5 / 5                  |
 | Kết quả truy xuất của tôi (Competition Results) | 10 / 10                |
-| **Tổng phần cá nhân**                      | **58 / 60**      |
+| **Tổng phần cá nhân**                      | **60 / 60**      |
