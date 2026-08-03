@@ -253,7 +253,7 @@ Toàn bộ 5 cặp chạy mock nằm gọn trong dải hẹp **0.07–0.23** và
 
 Chạy **5 câu hỏi đánh giá của nhóm** trên mã nguồn cá nhân của bạn trong gói `src`. **5 câu hỏi này phải trùng với các thành viên cùng nhóm** (xem `REPORT_NHOM.md`).
 
-**Cấu hình của tôi:** corpus chung `data/k4_ecommerce/` (**10 tài liệu chính sách Shopee, 109 chunk**) · chiến lược **`ClauseChunker(max_sentences_per_clause=1)`** — chunker tuỳ chỉnh tôi tự viết cho K4 · `top_k=3` · embedder `paraphrase-multilingual-MiniLM-L12-v2` · LLM là `llm_trich_xuat` (hàm trích xuất tất định, chỉ lấy câu **trong ngữ cảnh đã truy xuất**, có trọng số theo thứ hạng, luôn kèm số hiệu đoạn `[n]` — repo không có API key nên đây là cách trung thực nhất để kiểm chứng grounding mà không bịa).
+**Cấu hình của tôi:** corpus chung `data/k4_ecommerce/` (**10 tài liệu chính sách Shopee, 108 chunk**) · chiến lược **`ClauseChunker(max_sentences_per_clause=1)`** — chunker tuỳ chỉnh tôi tự viết cho K4 · `top_k=3` · embedder `paraphrase-multilingual-MiniLM-L12-v2` · LLM là `llm_trich_xuat` (hàm trích xuất tất định, chỉ lấy câu **trong ngữ cảnh đã truy xuất**, có trọng số theo thứ hạng, luôn kèm số hiệu đoạn `[n]` — repo không có API key nên đây là cách trung thực nhất để kiểm chứng grounding mà không bịa).
 
 **Lệnh tái lập:** `$env:EMBEDDING_PROVIDER="local"; python bench.py`
 
@@ -283,25 +283,25 @@ Số trong ô là **thứ hạng của chunk chứa gold answer**; cột "Agent"
 
 | Chiến lược | #chunk | Q1 | Q2 | Q3 | Q4 | Q5 | Agent | Điểm |
 |---|---|---|---|---|---|---|---|---|
-| **`ClauseChunker(1 câu)`** ← chọn | 109 | #1 | #2 | #1 | **#2** | #1 | 3/5 | **8/10** |
+| **`ClauseChunker(1 câu)`** ← chọn | 108 | #1 | #2 | #1 | **#2** | #1 | 3/5 | **8/10** |
 | `ClauseChunker(2 câu)` | 95 | #1 | #2 | #1 | **#2** | #1 | 3/5 | **8/10** |
-| `FixedSizeChunker(500,50)` | 31 | #1 | #1 | #1 | **trượt** | #1 | 3/5 | 7/10 |
+| `FixedSizeChunker(500,50)` | 32 | #1 | #1 | #1 | **trượt** | #1 | 3/5 | 7/10 |
 | `RecursiveChunker(400)` | 45 | #1 | #1 | #1 | **trượt** | #1 | 3/5 | 7/10 |
 | `SentenceChunker(3 câu)` | 38 | #1 | #2 | #1 | trượt | #1 | 2/5 | 6/10 |
 | `SentenceChunker(2 câu)` | 51 | #1 | #2 | #1 | trượt | #1 | 2/5 | 6/10 |
-| `RecursiveChunker(200)` | 91 | #1 | trượt | #3 | trượt | #2 | 1/5 | 4/10 |
-| `FixedSizeChunker(200,40)` | 78 | #2 | trượt | trượt | trượt | #1 | 1/5 | 3/10 |
-| `SentenceChunker(1 câu)` | 99 | trượt | #3 | #3 | trượt | #2 | 0/5 | 3/10 |
-| `ClauseChunker(1, **bỏ tiêu đề**)` | 109 | trượt | #3 | #2 | trượt | #2 | 0/5 | **3/10** |
-| `RecursiveChunker(120)` | 143 | trượt | trượt | trượt | trượt | #2 | 0/5 | 1/10 |
+| `RecursiveChunker(200)` | 94 | #1 | trượt | #3 | trượt | #2 | 1/5 | 4/10 |
+| `FixedSizeChunker(200,40)` | 79 | #2 | trượt | trượt | trượt | #1 | 1/5 | 3/10 |
+| `SentenceChunker(1 câu)` | 99 | #3 | #3 | #3 | trượt | #2 | 0/5 | 4/10 |
+| `ClauseChunker(1, **bỏ tiêu đề**)` | 108 | #3 | #3 | #2 | trượt | #2 | 0/5 | **4/10** |
+| `RecursiveChunker(120)` | 144 | trượt | trượt | trượt | trượt | #2 | 0/5 | 1/10 |
 
 Bốn điều rút ra:
 
 1. **Điểm phân biệt duy nhất giữa 8/10 và 7/10 là Q4.** Ba chunker có sẵn cho thứ hạng đẹp hơn ở Q2 (#1 thay vì #2) nhưng **trượt hẳn Q4 khỏi top-3**. `ClauseChunker` đánh đổi một bậc thứ hạng để với được câu mà các chiến lược kia không chạm tới — recall đổi lấy precision, và ở rubric này recall thắng vì trượt top-3 bị **0 điểm** còn lệch thứ hạng vẫn được **1 điểm**.
 
-2. **Tiền tố tiêu đề là yếu tố sống còn.** Ablation bỏ tiêu đề khiến **cùng một chunker, cùng 109 chunk** rơi từ **8/10 xuống 3/10** (trượt 2 câu, agent sai cả 5). Câu đơn lẻ tách khỏi tài liệu thì mất hết ngữ cảnh. Đề bài cũng nêu đúng chi tiết này: *"khi cắt nhỏ một section dài, nên gắn lại tiêu đề vào từng mảnh con"*.
+2. **Tiền tố tiêu đề là yếu tố sống còn.** Ablation bỏ tiêu đề khiến **cùng một chunker, cùng 108 chunk** rơi từ **8/10 xuống 4/10** (agent sai cả 5, mọi câu tụt hạng). Câu đơn lẻ tách khỏi tài liệu thì mất hết ngữ cảnh. Đề bài cũng nêu đúng chi tiết này: *"khi cắt nhỏ một section dài, nên gắn lại tiêu đề vào từng mảnh con"*.
 
-3. **Mịn hơn không phải tốt hơn.** `RecursiveChunker(120)` mịn nhất (143 chunk) nhưng **tệ nhất, 1/10**. Điều quyết định không phải kích thước chunk mà là **cắt có tôn trọng ranh giới ngữ nghĩa hay không**: cắt theo ký tự xé câu làm đôi, cắt theo điều khoản thì không.
+3. **Mịn hơn không phải tốt hơn.** `RecursiveChunker(120)` mịn nhất (144 chunk) nhưng **tệ nhất, 1/10**. Điều quyết định không phải kích thước chunk mà là **cắt có tôn trọng ranh giới ngữ nghĩa hay không**: cắt theo ký tự xé câu làm đôi, cắt theo điều khoản thì không.
 
 4. **Agent mới là nút thắt, không phải retrieval.** Mọi chiến lược tốt đều đưa được chunk liên quan vào top-3 ở 4–5 câu, nhưng **không cấu hình nào cho agent trả lời đúng quá 3/5**. Trần điểm hiện nằm ở tầng sinh câu trả lời chứ không phải tầng truy xuất.
 
@@ -332,7 +332,7 @@ Không lọc thì **top-1 rơi vào tài liệu người mua** và agent trả l
 **3. Q4 bị cả 3 chunker có sẵn trượt hoàn toàn khỏi top-3.** "Đồ cổ và tác phẩm nghệ thuật" chỉ là **một dòng trong danh sách 20 nhóm hàng cấm**. Chunk 400–500 ký tự nuốt trọn cả danh sách, vector bị trung bình hoá trên 20 chủ đề khác nhau nên không khớp riêng "đồ cổ". Chỉ khi mỗi mục thành một chunk thì dòng đó mới có vector riêng.
 *Bài học tổng quát:* **danh sách liệt kê phải được cắt theo từng mục**, không thể gộp khối — đây là lý do cấu trúc để chọn chunker theo điều/khoản cho văn bản chính sách.
 
-> ⚠️ **Giới hạn:** 5 câu hỏi là mẫu nhỏ; chênh lệch giữa 8/10 và 7/10 chỉ đến từ **một câu duy nhất (Q4)**, nên kết luận "ClauseChunker tốt hơn" cần thêm câu hỏi mới thật vững. Ngược lại, ablation bỏ tiêu đề (8 → 3, trượt 2 câu, agent sai cả 5) thì đủ mạnh để kết luận chắc chắn.
+> ⚠️ **Giới hạn:** 5 câu hỏi là mẫu nhỏ; chênh lệch giữa 8/10 và 7/10 chỉ đến từ **một câu duy nhất (Q4)**, nên kết luận "ClauseChunker tốt hơn" cần thêm câu hỏi mới thật vững. Ngược lại, ablation bỏ tiêu đề (8 → 4, agent sai cả 5) thì đủ mạnh để kết luận chắc chắn.
 
 **Điều hay nhất tôi học được từ thành viên khác / nhóm khác (qua demo):**
 > *(Điền sau buổi demo.)*

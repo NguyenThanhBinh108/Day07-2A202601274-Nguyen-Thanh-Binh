@@ -1,14 +1,14 @@
 # Báo Cáo Nhóm — Lab 7: Embedding & Vector Store
 
 **Nhóm:** [Điền tên nhóm]
-**Thành viên:** Nguyễn Thanh Bình (2A202601274) · Trần Chí Vũ (2A202601044) · Trịnh Hải Đăng (2A202601602) · Đỗ Văn Linh (2A202601190)
+**Thành viên:** Nguyễn Thanh Bình (2A202601274) · Trần Chí Vũ (2A202601044) · Trịnh Hải Đăng (2A202601602) · Đỗ Văn Linh (2A202601190) · Đỗ Thu Liễu (2A202601898)
 **Ngày:** 03/08/2026
 
 > **Nộp 1 bản / nhóm.** Phần cá nhân (hướng tiếp cận, kết quả riêng, dự đoán…) mỗi thành viên nộp riêng trong `REPORT_CANHAN.md`. Chi tiết thang điểm: `docs/SCORING.md`.
 
 **Tổng điểm phần nhóm: 40** = Lựa chọn tài liệu (10) + Thiết kế chiến lược (15) + Chất lượng truy xuất (10) + Thuyết trình (5).
 
-> ⚠️ **Trạng thái bản này:** Mục 1 và Mục 3 đã hoàn tất. Mục 2 và Mục 4 mới điền phần của Nguyễn Thanh Bình cùng số liệu đo được; **ba thành viên còn lại cần chốt chiến lược, chạy `bench.py` và điền khối của mình** (xem ô đánh dấu `[CẦN ĐIỀN]`).
+> ⚠️ **Trạng thái bản này:** Mục 1 và Mục 3 đã hoàn tất. Mục 2 và Mục 4 mới điền phần của Nguyễn Thanh Bình cùng số liệu đo được; **bốn thành viên còn lại cần chốt chiến lược, chạy `bench.py` và điền khối của mình** (xem ô đánh dấu `[CẦN ĐIỀN]`).
 
 ---
 
@@ -28,15 +28,15 @@ Corpus dùng chung: `data/k4_ecommerce/` — **10 tài liệu**, toàn bộ lấ
 | # | doc_id | Tên tài liệu | customer_role | category | Số ký tự |
 |---|---|---|---|---|---|
 | 1 | `return-refund-policy` | Chính sách trả hàng và hoàn tiền | buyer | returns | 1.490 |
-| 2 | `return-refund-general-rules` | Quy định chung về trả hàng/hoàn tiền | buyer | returns | 1.208 |
-| 3 | `return-shipping-fee` | Phương thức gửi hàng hoàn trả và phí hoàn trả | buyer | returns | 836 |
-| 4 | `payment-methods` | Các phương thức thanh toán Shopee hỗ trợ | buyer | payment | 946 |
-| 5 | `delivery-process` | Đơn vị vận chuyển giao hàng như thế nào | buyer | shipping | 1.095 |
-| 6 | `seller-listing-rules` | Quy định về đăng bán sản phẩm | seller | seller-policy | 1.094 |
-| 7 | `restricted-products-policy` | Chính sách cấm/hạn chế sản phẩm | seller | seller-policy | 1.189 |
-| 8 | `shipping-fee-discount-program` | Điều khoản chương trình ưu đãi phí vận chuyển | seller | shipping | 1.113 |
-| 9 | `marketplace-operating-regulation` | Quy chế hoạt động sàn Shopee.vn | both | seller-policy | 1.259 |
-| 10 | `privacy-policy` | Chính sách bảo mật | both | privacy | 1.887 |
+| 2 | `return-shipping-fee` | Phương thức gửi hàng hoàn trả và phí hoàn trả | buyer | returns | 836 |
+| 3 | `payment-methods` | Các phương thức thanh toán Shopee hỗ trợ | buyer | payment | 946 |
+| 4 | `delivery-process` | Đơn vị vận chuyển giao hàng như thế nào | buyer | shipping | 1.095 |
+| 5 | `seller-listing-rules` | Quy định về đăng bán sản phẩm | seller | seller-policy | 1.094 |
+| 6 | `restricted-products-policy` | Chính sách cấm/hạn chế sản phẩm | seller | seller-policy | 1.189 |
+| 7 | `shipping-fee-discount-program` | Điều khoản chương trình ưu đãi phí vận chuyển | seller | shipping | 1.113 |
+| 8 | `marketplace-operating-regulation` | Quy chế hoạt động sàn Shopee.vn | both | seller-policy | 1.259 |
+| 9 | `privacy-policy` | Chính sách bảo mật | both | privacy | 1.887 |
+| 10 | `voucher-discount-policy` | Chính sách voucher và ưu đãi giảm giá | both | promotion | 1.447 |
 
 Nguồn đầy đủ (URL gốc, ngày lấy, phiên bản, căn cứ sử dụng) trong `data/k4_ecommerce/sources.csv`.
 
@@ -48,7 +48,7 @@ Nguồn đầy đủ (URL gốc, ngày lấy, phiên bản, căn cứ sử dụn
 
 ```
 10/10 file OK   |   so file: 10 (can 5-10)   |   csv: khop
-customer_role : {'buyer': 5, 'seller': 3, 'both': 2}
+customer_role : {'buyer': 4, 'seller': 3, 'both': 3}
 ```
 
 Hai việc nhóm đã phải sửa để đạt checkpoint:
@@ -92,10 +92,10 @@ Tổng số chunk trên toàn corpus 10 tài liệu:
 
 | Chiến lược | Số chunk |
 |---|---|
-| `FixedSizeChunker(500, 50)` | 31 |
+| `FixedSizeChunker(500, 50)` | 32 |
 | `SentenceChunker(3 câu)` | 38 |
 | `RecursiveChunker(400)` | 45 |
-| `ClauseChunker(1 câu)` | 109 |
+| `ClauseChunker(1 câu)` | 108 |
 
 ### Chiến lược của từng thành viên
 
@@ -138,7 +138,7 @@ class ClauseChunker:
 
 | Thành viên | Chiến lược | #chunk | Điểm truy xuất (/10) | Điểm mạnh | Điểm yếu |
 |---|---|---|---|---|---|
-| Nguyễn Thanh Bình | `ClauseChunker(1 câu)` | 109 | **8** | Duy nhất với được Q4 (danh sách hàng cấm); tiêu đề làm chunk tự đủ nghĩa | Chunk quá mịn nên đáp án và ngữ cảnh tách rời (Q2 mất số liệu) |
+| Nguyễn Thanh Bình | `ClauseChunker(1 câu)` | 108 | **8** | Duy nhất với được Q4 (danh sách hàng cấm); tiêu đề làm chunk tự đủ nghĩa | Chunk quá mịn nên đáp án và ngữ cảnh tách rời (Q2 mất số liệu) |
 | Trần Chí Vũ | `RecursiveChunker` | 45 | *[CẦN ĐIỀN]* | Tôn trọng ranh giới đoạn | Trượt Q4 |
 | Trịnh Hải Đăng | `FixedSizeChunker` có overlap | 31 | *[CẦN ĐIỀN]* | Ít chunk, overlap giữ liên kết | Cắt ngang câu; trượt Q4 |
 | Đỗ Văn Linh | `SentenceChunker` | 38 | *[CẦN ĐIỀN]* | Chunk luôn trọn câu | Không tôn trọng ranh giới mục |
