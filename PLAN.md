@@ -1,7 +1,7 @@
 # PLAN.md — Kế hoạch làm Lab 07 (K4: Embedding & Vector Store — Chính sách TMĐT)
 
 > File kế hoạch cá nhân, tổng hợp từ README.md, exercises.md, K4_VARIANT.md, docs/SCORING.md, docs/DATA_COLLECTION.md, docs/EVALUATION.md.
-> Sinh viên: Trịnh Hải Đăng — MSSV 2A202601602 — Lớp K4
+> Sinh viên: Trịnh Hải Đăng — MSSV 01602 — Lớp K4
 > Nộp bài trong: `Trinh-Hai-Dang-2A202601602/`
 
 ---
@@ -107,7 +107,15 @@ python -m pytest tests/ -v
   8. `shopeevip-membership` (buyer) — Chương trình thành viên ShopeeVIP
   9. `global-selling-program` (seller) — Chương trình bán hàng toàn cầu
   10. `parcel-locker-delivery` (buyer) — Giao hàng qua tủ khóa
-- [x] Verify toàn diện bộ **20 tài liệu**: `sources.csv` khớp 1-1 (20/20), tên file đúng chuẩn (chữ thường/không dấu/gạch ngang), `doc_id` duy nhất, đủ field bắt buộc cho cả 20 file, phân bổ `customer_role` cân đối (buyer=10, seller=6, both=4), 8 category khác nhau; nạp qua `build_knowledge_base()` → **62 chunk**; `pytest tests/ -v` vẫn 42/42 sau khi nhân đôi dữ liệu
+- [x] Verify toàn diện bộ **20 tài liệu**: `sources.csv` khớp 1-1 (20/20), tên file đúng chuẩn (chữ thường/không dấu/gạch ngang), `doc_id` duy nhất, đủ field bắt buộc cho cả 20 file, phân bổ `customer_role` cân đối (buyer=10, seller=6, both=4), 8 category khác nhau; nạp qua `build_knowledge_base()` → 62 chunk (bản tóm tắt ban đầu); `pytest tests/ -v` vẫn 42/42
+- [x] **Thu thập lại toàn bộ 20 file bằng nội dung verbatim đầy đủ** (theo phản hồi: dữ liệu tóm tắt qua WebFetch quá sơ sài, ví dụ so sánh trực tiếp với nội dung `payment-methods` người dùng dán ra cho thấy WebFetch chỉ trả bản tóm tắt qua model nhỏ, mất rất nhiều chi tiết/con số):
+  - Phát hiện: mỗi trang help.shopee.vn nhúng toàn bộ nội dung HTML gốc trong biến `window["FORGE_SSR_DATA_MAP"]` ngay trong SSR HTML — không cần qua WebFetch/model tóm tắt
+  - Viết script Python (`curl`/`requests` + regex trích JSON + `html2text`) tải lại cả 20 URL, trích đúng nội dung đầy đủ theo đúng `article id`, tôn trọng rate-limit (~1.2s/request)
+  - Tổng dung lượng tăng từ ~24.000 → **305.807 ký tự** (một số tài liệu là văn bản pháp lý đầy đủ: quy chế sàn 77.541 ký tự, chính sách bảo mật 42.987 ký tự, điều khoản Shopee Mall 33.464 ký tự)
+  - Dọn dẹp artifact định dạng do `html2text` (dòng `**`/`__` thừa, khoảng trắng non-breaking, dòng trống thừa) bằng script, giữ nguyên front matter đã kiểm chứng (doc_id/customer_role/category/document_version), chỉ thay phần nội dung
+  - Đối chiếu lại `document_version` với ngày "đăng tải/hiệu lực" tìm thấy trong toàn văn — phát hiện và sửa 1 lỗi ngày tháng do WebFetch tóm tắt sai trước đó (`voucher-discount-policy`: "14/11/2026" → đúng là "14/05/2026", ngày hiệu lực 23/05/2026 không đổi)
+  - Verify lại: `build_knowledge_base()` → **1185 chunk** (chunk_size=300/overlap=40), `pytest tests/ -v` vẫn 42/42 sau khi thay toàn bộ nội dung
+  - Re-run benchmark cá nhân (Bước 8) với dữ liệu đầy đủ: **5/5 câu đúng ngay top-1** (trước đó với dữ liệu tóm tắt: 4/5 top-1 + 1/5 top-2) — cập nhật đầy đủ vào `REPORT_CANHAN.md` Phần 5, kèm phân tích 3 lần chạy (mock/tóm tắt → local/tóm tắt → local/đầy đủ)
 - [ ] Ghi bảng tài liệu vào `REPORT_NHOM.md` Phần 1 — còn lại
 
 ### Bước 5 — Thiết kế chiến lược cá nhân (Bài 3.1 — 15đ nhóm) — CHƯA LÀM
@@ -132,33 +140,40 @@ python -m pytest tests/ -v
 - [ ] So sánh trong nhóm: chiến lược nào tốt hơn, có đảo ngược giữa câu hỏi không, metadata filter có giúp không
 - [ ] Cập nhật `REPORT_NHOM.md` Phần 3 (đây là phần việc của nhóm, không phải cá nhân)
 
-### Bước 9 — Phân tích lỗi (Bài 3.5) — CHƯA LÀM
-- [ ] Tìm ít nhất 1 failure case, giải thích nguyên nhân (chunk sai kích thước/thiếu metadata/câu hỏi mơ hồ), đề xuất cải thiện
-- [ ] Ghi vào `REPORT_NHOM.md` Phần 4
+### Bước 9 — Phân tích lỗi (Bài 3.5) — ĐÃ XONG
+- [x] Failure case thật tìm được khi so sánh `FixedSizeChunker` vs `ClauseChunker` (custom): câu hỏi 2 ("phương thức thanh toán") sai vì `ClauseChunker` không nhận diện heading Markdown `## N.` của riêng `payment-methods.md` (19/20 tài liệu khác dùng heading `**N. TIÊU ĐỀ**`), rơi về chia theo đoạn văn → 40 chunk rất nhỏ (72-176 ký tự) làm loãng kết quả; câu hỏi 4 sai vì chunk quá lớn (1500+ ký tự) từ văn bản luật dài lấn át chunk đúng trọng tâm từ tài liệu chuyên biệt hơn
+- [x] Ghi đầy đủ vào `REPORT_NHOM.md` Mục 2 (so sánh chiến lược) và Mục 4 (bài học nhóm)
 
-### Bước 10 — Hoàn thiện & nộp bài (làm cuối cùng) — CHƯA LÀM
-- [x] `pytest tests/ -v` toàn bộ pass trong `Trinh-Hai-Dang-2A202601602/` (42/42 — nhưng cần chạy lại lần cuối trước khi nộp)
-- [ ] Rà lại `REPORT_CANHAN.md` đủ 5 phần, `REPORT_NHOM.md` đủ 4 phần
-- [ ] Kiểm tra `data/` không chứa dữ liệu nhạy cảm/đăng nhập
+### Bước 10 — Hoàn thiện & nộp bài (làm cuối cùng) — GẦN XONG
+- [x] `pytest tests/ -v` toàn bộ pass trong `Trinh-Hai-Dang-2A202601602/` (42/42, re-check sau mọi thay đổi kể cả sau khi thêm `demo/`)
+- [x] `REPORT_CANHAN.md` đủ 5 phần, `REPORT_NHOM.md` đủ 4 phần (Phần "Demo" của nhóm và tên 2 thành viên còn lại vẫn để trống — cần nhóm họp bổ sung)
+- [x] Kiểm tra `data/` không chứa dữ liệu nhạy cảm/đăng nhập (chỉ trang chính sách công khai)
 - [x] Đảm bảo mọi thứ nằm trong `Trinh-Hai-Dang-2A202601602/`
+
+### Bước 11 — Tài liệu thuyết trình + demo trực tiếp (bổ sung theo yêu cầu) — ĐÃ XONG
+- [x] Viết `PRESENTATION.md` (tổng quan toàn bộ folder: kiến trúc, dữ liệu, kết quả, cách chạy demo) phục vụ thuyết trình
+- [x] Thiết kế chiến lược tùy chỉnh `ClauseChunker` (chunk theo điều/khoản) — dùng cho cả `REPORT_NHOM.md` Mục 2 và demo trực tiếp
+- [x] Xây `demo/` — giao diện web (Flask + HTML/CSS/JS, màu theo dataviz skill) gọi **pipeline Python thật** (không phải dữ liệu tĩnh): truy vấn trực tiếp, chọn chiến lược chunking, lọc `customer_role`, bảng benchmark 5 câu hỏi tính lại mỗi lần chạy
+- [x] Test trực tiếp: khởi động server, gọi `/api/stats`, `/api/benchmark`, `/api/query` — tất cả trả kết quả đúng khớp báo cáo; dừng server test sau khi verify xong
+- [x] `pytest tests/ -v` vẫn 42/42 sau khi thêm `demo/` (không đụng tới `src/` được chấm điểm)
 
 ---
 
 ## 3. Checklist tổng (đối chiếu README/exercises)
 
-- [x] Vượt tất cả test: `pytest tests/ -v` (42/42, cần re-check lần cuối sau khi thêm data/report)
+- [x] Vượt tất cả test: `pytest tests/ -v` (42/42)
 - [x] `src/` hoàn thành TODO cá nhân
-- [ ] `REPORT_NHOM.md` đầy đủ (1 file/nhóm)
-- [ ] `REPORT_CANHAN.md` đầy đủ (1 file/sinh viên — của Đăng)
+- [x] `REPORT_NHOM.md` đầy đủ 4 phần (còn thiếu tên/chiến lược của 2 thành viên khác — cần họp nhóm bổ sung)
+- [x] `REPORT_CANHAN.md` đầy đủ (1 file/sinh viên — của Đăng)
 - [x] Toàn bộ code + báo cáo nằm trong `Trinh-Hai-Dang-2A202601602/`
+- [x] Tài liệu thuyết trình (`PRESENTATION.md`) + demo trực tiếp (`demo/`)
 
 ---
 
 ## 4. Đang làm tiếp theo (next action)
 
-**Toàn bộ phần cá nhân (60/60đ) đã hoàn thiện với số liệu thật, tự đánh giá 59/60**: code (30/30, 42/42 test), khởi động (5/5), hướng tiếp cận (10/10), dự đoán similarity (5/5 đúng với `LocalEmbedder`), kết quả truy xuất (9/10 — 5/5 chunk liên quan top-3 với embedder thật, chỉ trừ vì câu hỏi chưa phải bản chính thức của nhóm). Đã cài xong `sentence-transformers` + tải model đa ngữ, không còn phụ thuộc mock.
-
-Việc còn lại thuộc phạm vi **nhóm**, không phải cá nhân:
-1. Nhóm B7-E402 họp thống nhất 5 câu hỏi benchmark chính thức + gold answer (Bước 6) → đối chiếu lại Phần 5 của `REPORT_CANHAN.md` cho khớp.
-2. Từng thành viên thử chiến lược chunking riêng, so sánh baseline (Bước 5, `REPORT_NHOM.md` Phần 2).
-3. Tổng hợp `REPORT_NHOM.md` đầy đủ 4 phần: lựa chọn tài liệu, chiến lược, câu hỏi đánh giá, demo + phân tích lỗi (Bước 4/9 phần ghi report, Bước 10 hoàn thiện & nộp bài).
+**Phần cá nhân (60/60đ) và khung báo cáo nhóm đã hoàn thiện với số liệu thật**, kèm tài liệu thuyết trình và demo web chạy pipeline thật (đã test end-to-end). Việc còn lại thuộc phạm vi **họp nhóm thật với các thành viên khác** (không thể tự làm thay):
+1. Các thành viên khác của B7-E402 điền chiến lược chunking riêng của họ vào `REPORT_NHOM.md` Mục 2 (đã có sẵn 1 chiến lược của Đăng + baseline làm mẫu).
+2. Đối chiếu 5 câu hỏi benchmark hiện tại (tự đề xuất) với ý kiến cả nhóm, chốt chính thức nếu cần điều chỉnh.
+3. Chạy `demo/server.py` trước buổi thuyết trình vài phút (mất ~1-2 phút tải model) để demo trực tiếp mượt mà, không phải chờ trên lớp.
+4. Sau buổi demo: điền phần "bài học từ nhóm khác" còn bỏ trống trong cả 2 báo cáo.

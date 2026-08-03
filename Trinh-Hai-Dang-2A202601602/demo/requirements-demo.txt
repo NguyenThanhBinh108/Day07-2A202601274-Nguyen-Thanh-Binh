@@ -1,0 +1,4 @@
+# Chỉ cần cho demo web (Flask) khi thuyết trình — không bắt buộc cho các checkpoint chấm điểm.
+# Cài cùng với requirements-local.txt (cần LocalEmbedder thật để demo có ý nghĩa):
+#   pip install -r requirements.txt -r requirements-local.txt -r demo/requirements-demo.txt
+flask==3.1.3

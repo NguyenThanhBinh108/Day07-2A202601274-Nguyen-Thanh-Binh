@@ -9,16 +9,40 @@ category: payment
 language: vi
 ---
 
-# Hướng dẫn chọn phương thức thanh toán khi nhận hàng (COD)
+# [Mua hàng] Hướng dẫn chọn phương thức thanh toán khi nhận hàng (COD)
 
-Để chọn thanh toán khi nhận hàng (COD), người mua thực hiện: tại bước đặt hàng, chọn mục "Phương thức thanh toán", chọn "Thanh toán khi nhận hàng", kiểm tra lại thông tin đơn hàng, rồi bấm "Đặt hàng".
+* Bạn **KHÔNG THỂ** đổi sang phương thức thanh toán khi nhận hàng (COD) cho đơn hàng đã đặt nếu trước đó đã chọn thanh toán qua Ví ShopeePay/thẻ nội địa NAPAS/thẻ tín dụng/ghi nợ....(Xem hướng dẫn Đổi phương thức thanh toán)
+ * Nếu bạn đặt đơn hàng mới và muốn thanh toán khi nhận hàng (COD), hãy làm theo hướng dẫn bên dưới nhé
 
-Ba lý do phổ biến khiến người mua không chọn được COD:
+**1. Hướng dẫn thanh toán khi nhận hàng**
 
-1. Người bán không sử dụng các hình thức vận chuyển của Shopee hoặc không hỗ trợ phương thức thanh toán này cho một số loại sản phẩm nhất định (ví dụ mã nạp điện thoại, vé xem phim điện tử).
-2. Tài khoản tạm thời bị hạn chế 24 giờ do vượt quá giới hạn số đơn hàng COD trong ngày.
-3. Shopee tạm thời vô hiệu hóa chức năng COD do lịch sử giao hàng COD không thành công vượt quá quy định hiện hành.
+ * **Bước 1: **Chọn Phương thức thanh toán > chọn Thanh toán khi nhận hàng
+ * **Bước 2:** Kiểm tra thông tin > chọn **Đặt hàng**
 
-Đối với hạn chế 24 giờ, người mua nên chờ và thử lại sau. Đối với hạn chế dài hạn, hệ thống sẽ tự động theo dõi lịch sử mua hàng thành công hằng ngày và khôi phục quyền sử dụng COD khi đủ điều kiện.
+**2. Vì sao tôi không thể chọn hình thức thanh toán khi nhận hàng?**
 
-Các phương thức thanh toán thay thế khi không dùng được COD: ví ShopeePay, thẻ ATM nội địa (có đăng ký Internet Banking), thẻ tín dụng/ghi nợ, hoặc chuyển khoản ngân hàng.
+Bạn không thể lựa chọn hình thức thanh toán khi nhận hàng (gọi tắt là COD) do một trong các nguyên nhân sau:
+
+ * Người bán không sử dụng các hình thức vận chuyển của Shopee và không cung cấp hình thức thanh toán này cho sản phẩm bạn chọn mua (ví dụ: mã điện tử để nạp điện thoại, mã vé xem phim điện tử...) hoặc
+ * Bạn đang bị giới hạn tạm thời chức năng thanh toán này**trong 24 giờ** do tài khoản đang sử dụng đã vượt mức giới hạn về số đơn hàng được chọn hình thức thanh toán COD trong ngày hoặc
+ * **Shopee đang tạm thời tắt chức năng Thanh toán khi nhận hàng của bạn do hệ thống ghi nhận lịch sử mua hàng của bạn có số lượng đơn hàng COD giao không thành công vượt quá quy định hiện hành**
+
+**3. Vậy tôi phải làm gì để có thể tiếp tục mua hàng?**
+
+Bạn có thể chọn các hình thức thanh toán khác hiện có trên Shopee để tiếp tục mua hàng
+
+**4. Khi nào tôi thì mới có thể mua hàng lại với phương thức COD?**
+
+ * Đối với trường hợp tài khoản bạn đang giới hạn tạm thời chức năng thanh toán COD **trong 24 giờ** :
+
+Bạn vui lòng thử lại sau thời gian trên. Nếu sau 24h bạn vẫn chưa thể chọn được hình thức thanh toán COD, thì tài khoản của bạn có thể rơi vào trường hợp Shopee tạm thời tắt chức năng Thanh toán khi nhận hàng
+
+ * Đối với trường hợp Shopee tạm thời tắt chức năng Thanh toán khi nhận hàng:
+
+Hệ thống sẽ liên tục kiểm tra lịch sử mua hàng thành công của bạn mỗi ngày, bạn có thể mua và nhận hàng thành công theo các _hình thức thanh toán_ khác hiện có trên Shopee để hệ thống ghi nhận và tự mở lại chức năng COD khi bạn đủ điều kiện sử dụng.
+
+Xem thêm:
+
+ * Hướng dẫn thanh toán bằng Ví ShopeePay
+ * Hướng dẫn thanh toán bằng thẻ ATM nội địa (Internet Banking)/Thẻ tín dụng/ghi nợ
+ * Hướng dẫn thanh toán bằng chuyển khoản ngân hàng

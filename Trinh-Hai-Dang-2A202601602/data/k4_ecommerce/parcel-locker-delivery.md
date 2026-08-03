@@ -9,15 +9,53 @@ category: shipping
 language: vi
 ---
 
-# Phương thức vận chuyển tủ nhận hàng là gì
+# [Vận chuyển] Phương Thức Vận Chuyển Tủ Nhận Hàng là gì?
 
-Tủ nhận hàng (Parcel Locker) là phương thức vận chuyển mới cho phép người mua nhận đơn hàng tại các tủ khóa cố định, mang lại lợi ích như chủ động thời gian lấy hàng, tăng tính riêng tư, và giảm rủi ro thất lạc hàng.
+1. Tủ nhận hàng là gì?
 
-**Cách chọn khi đặt hàng:** tại bước chọn phương thức vận chuyển, chọn "Tự lấy hàng" (Self-pickup), chọn một tủ nhận hàng từ danh sách gợi ý, rồi xác nhận lựa chọn trước khi thanh toán.
+Tủ nhận hàng là phương thức vận chuyển mới cho phép bạn đến nhận đơn hàng đã đặt trên nền tảng Shopee tại các tủ nhận hàng cố định. Phương thức vận chuyển Tủ nhận hàng có những ưu điểm:
 
-**Cách nhận hàng tại tủ:** sau khi đơn hàng được giao đến tủ, người mua nhận mã PIN qua ứng dụng Shopee và có 72 giờ kể từ khi nhận thông báo để lấy hàng. Quy trình lấy hàng yêu cầu nhập mã PIN và hoàn tất thanh toán (đối với đơn COD) bằng cách quét mã QR.
+ * Chủ động thời gian nhận hàng phù hợp
+ * Bảo mật và riêng tư hơn khi nhận hàng
+ * Tránh thất lạc hàng hóa
 
-**Lưu ý quan trọng:**
-- Mã PIN cần được giữ bí mật.
-- Nếu nhiều đơn hàng nằm chung một ngăn tủ, cần hoàn tất thanh toán COD cho tất cả đơn trước khi mở ngăn.
-- Sau 72 giờ không đến lấy, kiện hàng sẽ tự động được hoàn về người bán.
+2. Làm sao để sử dụng phương thức ‘Giao tới tủ nhận hàng’ khi đặt hàng?
+
+ * Bước 1: Tại trang thanh toán, mục ‘Phương thức vận chuyển’ > chọn ‘Xem tất cả’
+ * Bước 2: Chọn ‘Lấy hàng chủ động"
+ * Bước 3: Tại mục ‘Tủ nhận hàng’, chọn tủ có vị trí phù hợp trong danh sách gợi ý hoặc nhấn ‘**Chọn tủ nhận hàng khác**’ để tìm kiếm tủ khác > nhấn ‘**Xác nhận** ’ để chọn tủ.
+ * Bước 4: Chọn Phương thức thanh toán > bấm ‘Đặt hàng’ để thanh toán.
+
+3. Làm sao để lấy hàng tại Tủ nhận hàng?
+
+Sau khi đặt hàng thành công và đơn hàng đã được giao đến Tủ nhận hàng, bạn sẽ nhận được mã PIN lấy hàng qua thông báo trên ứng dụng Shopee. Bạn cần đến Tủ nhận hàng trong vòng 72 giờ kể từ thời điểm nhận thông báo để thực hiện nhận hàng. Sau thời hạn 72 giờ bạn chưa nhận hàng theo thông báo, hệ thống sẽ tự động hoàn trả đơn hàng về cho Người bán.
+
+Cách lấy mã PIN trên ứng dụng Shopee:
+
+ * Bước 1: Tại trang ‘Tôi’, chọn ‘Đơn mua’ (Xem lịch sử mua hàng) > chọn thẻ ‘Chờ giao hàng’ > chọn đơn hàng của bạn.
+
+ * Bước 2: Tại trang ‘Thông tin đơn hàng’, chọn mục ‘Thông tin vận chuyển’ để xem mã PIN.
+
+Cách thao tác tại Tủ nhận hàng: Trong vòng 72 giờ kể từ khi nhận được thông báo đơn đã giao tới tủ, bạn di chuyển tới vị trí Tủ nhận hàng bạn đã chọn.
+
+ * Bước 1: Tại màn hình tủ, chọn ‘Lấy hàng’, sau đó chọn ‘Nhập mã bí mật’ và nhập mã PIN được cung cấp trên ứng dụng Shopee
+
+ * Bước 2:
+
+ * Nếu đơn hàng chưa thanh toán (COD): Quét mã QR hiển thị trên màn hình Tủ để thực hiện thanh toán.
+
+ * Nếu đơn hàng đã thanh toán trước: Bạn không cần thực hiện bước thanh toán.
+
+ * Bước 3: Sau khi thanh toán thành công (đối với đơn COD) hoặc xác thực PIN (đối với đơn đã thanh toán trước), ô tủ chứa hàng sẽ tự động mở. Bạn vui lòng lấy hàng.
+
+⚠️ Lưu ý:
+
+ * Vui lòng bảo mật mã PIN được cung cấp. Mã PIN là thông tin xác thực để nhận hàng tại Tủ. Không chia sẻ mã PIN với bất kỳ bên thứ ba nào nhằm bảo đảm an toàn cho hàng hóa và hạn chế các rủi ro phát sinh.
+
+ * Việc thanh toán COD được thực hiện thông qua ứng dụng ngân hàng/ ví điện tử của bạn theo mã QR được cung cấp trên Tủ nhận hàng.
+
+ * Trường hợp ô tủ chứa nhiều đơn hàng, bạn cần hoàn tất thanh toán tất cả các đơn COD (nếu có) để ô tủ mở
+
+4. Các câu hỏi thường gặp khi sử dụng phương thức vận chuyển ‘Giao tới tủ nhận hàng’
+
+Các câu hỏi thường gặp
